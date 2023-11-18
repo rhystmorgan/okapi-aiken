@@ -1,0 +1,14 @@
+name = "rhystmorgan/okapi-aiken"
+version = "0.0.0"
+license = "Apache-2.0"
+description = "Aiken contracts for project 'rhystmorgan/okapi-aiken'"
+
+[repository]
+user = "rhystmorgan"
+project = "okapi-aiken"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "1.7.0"
+source = "github"
