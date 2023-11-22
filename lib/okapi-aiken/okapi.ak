@@ -1,7 +1,9 @@
 use aiken/builtin
+use aiken/bytearray
 use aiken/dict
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/list
+use aiken/string
 use aiken/transaction.{
   Input, Mint, Output, OutputReference, ScriptContext, Spend, Transaction,
   find_input, find_script_outputs,
@@ -19,6 +21,26 @@ pub type VerificationKeyHash =
 
 pub type ScriptHash =
   Hash<Blake2b_224, Script>
+
+pub type TokenDatum {
+  metadata: TokenMetadata,
+  version: Int,
+}
+
+pub type TokenMetadata {
+  name: ByteArray,
+  image: ByteArray,
+  mediaType: ByteArray,
+}
+
+// const refPrefix = "100"
+pub const refPrefix = #"000643b0"
+
+// const userPrefix = "222"
+pub const userPrefix = #"000de140"
+
+// const fracPrefix = "444"
+pub const fracPrefix = #"001bc280"
 
 pub fn get_spend_ref(ctx: ScriptContext) -> OutputReference {
   expect Spend(ownRef) = ctx.purpose
@@ -131,17 +153,6 @@ pub fn tx_signed_by_list(
   sig_count == list.length(vkList)
 }
 
-pub type MetadataDatum {
-  metadata: TokenMetadata,
-  version: Int,
-}
-
-pub type TokenMetadata {
-  name: String,
-  image: String,
-  mediaType: String,
-}
-
 pub fn token_metadata_name_check(
   in_metadata: TokenMetadata,
   out_metadata: TokenMetadata,
@@ -158,11 +169,81 @@ pub fn compare_token_names(an: AssetName, tn: Option<ByteArray>) -> Bool {
 }
 
 pub fn init_68_datum(
-  tn: String,
-  image: String,
-  mediaType: String,
-) -> MetadataDatum {
+  tn: ByteArray,
+  image: ByteArray,
+  mediaType: ByteArray,
+) -> TokenDatum {
   let metadata = TokenMetadata { name: tn, image, mediaType }
   let version = 1
-  MetadataDatum { metadata, version }
+  TokenDatum { metadata, version }
 }
+
+pub fn make_token_names(tn) -> List<value.AssetName> {
+  let tokenName: value.AssetName = tn
+  trace string.from_bytearray(tokenName)
+
+  let refTn = tokenName
+  trace string.from_bytearray(refTn)
+
+  let userTn = tokenName
+  trace string.from_bytearray(userTn)
+  [refTn, userTn]
+}
+
+pub fn make_token_prefix() {
+  let ref_asset: value.AssetName = refPrefix
+  let user_asset: value.AssetName = userPrefix
+  [ref_asset, user_asset]
+}
+
+pub fn token_pair_prefix(tn) {
+  let token_name_list = make_token_names(tn)
+  let token_name_prefix = make_token_prefix()
+
+  list.map2(
+    token_name_prefix,
+    token_name_list,
+    fn(a, b) { bytearray.concat(a, b) },
+  )
+}
+
+pub fn make_fraction_prefix() {
+  let ref_asset: value.AssetName = refPrefix
+  let frac_asset: value.AssetName = fracPrefix
+  [ref_asset, frac_asset]
+}
+
+pub fn fraction_pair_prefix(tn) {
+  let token_name_list = make_token_names(tn)
+  let token_name_prefix = make_fraction_prefix()
+
+  list.map2(
+    token_name_prefix,
+    token_name_list,
+    fn(a, b) { bytearray.concat(a, b) },
+  )
+}
+
+pub fn has_one_singleton_asset_less(in: Value, out: Value) -> Bool {
+  expect Some(policy_id) =
+    value.without_lovelace(in)
+      |> value.policies()
+      |> list.head()
+  how_many_tokens(out, policy_id) == how_many_tokens(in, policy_id) - 1
+}
+
+pub fn how_many_tokens(v: Value, p: PolicyId) -> Int {
+  let token_count = dict.values(value.tokens(v, p))
+  expect Some(n) =
+    value.tokens(v, p)
+      |> dict.values()
+      |> list.head()
+  n
+}
+
+pub fn datum_match(in: Output, out: Output) -> Bool {
+  in.datum == out.datum
+}
+// ideas 
+
+// && list -> so you can just line your functions up and return a bool

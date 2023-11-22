@@ -14,3 +14,10 @@ deno task start
 ```
 
 This will watch the project directory and restart as necessary.
+
+in case of deno commad issues:
+
+```
+export DENO_INSTALL="/home/plutus/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+```
