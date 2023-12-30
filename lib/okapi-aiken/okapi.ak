@@ -14,6 +14,7 @@ use aiken/transaction/value.{AssetName, PolicyId, Value, lovelace_of}
 // This is a module of Helper Functions to make building Validators much simpler
 // Just like Plutarch-Extra 
 
+// For maximum awesomeness: 
 // Use okapi as ok 
 
 pub type VerificationKeyHash =
@@ -247,3 +248,19 @@ pub fn datum_match(in: Output, out: Output) -> Bool {
 // ideas 
 
 // && list -> so you can just line your functions up and return a bool
+
+// pub fn to_datum(raw: Data) -> types.Datum {
+//   expect parsed: types.Datum = raw
+//   parsed
+// }
+
+// expect is inlined so you can save a whole bunch of space doing this
+
+// list.any(outputs, fn(output) {
+//   when output.datum {
+//     InlineDatum(raw_data) ->
+//       raw_data == thing
+//     _ -> False
+//   }
+// })
+
