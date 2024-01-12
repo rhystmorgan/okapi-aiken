@@ -201,3 +201,20 @@ test get_own_singleton_output() {
     NoDatum,
   )
 }
+// get_own_singleton_output_value
+// keep_own_lovelace_value
+// contains_single_token_of 
+// contains_only_lovelace
+// tx_signed_by 
+// tx_signed_by_no_list 
+// tx_signed_by_list
+// token_metadata_name_check
+// compare_token_names
+// init_68_datum
+// make_token_names
+// make_token_prefix 
+// token_pair_prefix
+// make_fraction_prefix
+// fraction_pair_prefix
+// has_one_singleton_asset_less 
+// how_many_tokens
