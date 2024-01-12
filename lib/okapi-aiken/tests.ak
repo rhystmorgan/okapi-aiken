@@ -3,6 +3,7 @@ use aiken/transaction.{
   Input, NoDatum, OutputReference, ScriptContext, Spend, Transaction,
   TransactionId, placeholder,
 }
+use aiken/transaction/credential as c
 use aiken/transaction/value
 use okapi_aiken/okapi as ok
 use tests/tools as t
@@ -253,12 +254,58 @@ test contains_single_token_of() {
 
   ok.contains_single_token_of(value, p)
 }
-// contains_single_token_of 
-// contains_only_lovelace
-// tx_signed_by 
-// tx_signed_by_no_list 
-// tx_signed_by_list
-// token_metadata_name_check
+
+test contains_only_lovelace() {
+  let v = value.from_lovelace(5)
+
+  ok.contains_only_lovelace(v)
+}
+
+test tx_signed_by() {
+  let s = t.test_address(#"face")
+  let sigs = t.test_signatories()
+  let t =
+    placeholder()
+      |> fn(transaction) { Transaction { ..transaction, extra_signatories: sigs } }
+  ok.tx_signed_by(t, #"face")
+}
+
+test tx_signed_by_no_list() {
+  let s = t.test_address(#"face")
+  let sigs = t.test_signatories()
+  let i = 1
+  let t =
+    placeholder()
+      |> fn(transaction) {
+           Transaction {
+             ..transaction,
+             extra_signatories: t.test_signatories(),
+           }
+         }
+  ok.tx_signed_by_no_list(t, i, sigs)
+}
+
+test tx_signed_by_list() {
+  let sigs = t.test_signatories()
+
+  let t =
+    placeholder()
+      |> fn(transaction) {
+           Transaction {
+             ..transaction,
+             extra_signatories: t.test_signatories(),
+           }
+         }
+  ok.tx_signed_by_list(t, sigs)
+}
+
+test token_metadata_name_check() {
+  let in =
+    ok.TokenMetadata { name: #"face", image: #"cafe", mediaType: #"dead" }
+  let out =
+    ok.TokenMetadata { name: #"face", image: #"beef", mediaType: #"dead" }
+  ok.token_metadata_name_check(in, out)
+}
 // compare_token_names
 // init_68_datum
 // make_token_names
