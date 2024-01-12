@@ -263,4 +263,3 @@ pub fn datum_match(in: Output, out: Output) -> Bool {
 //     _ -> False
 //   }
 // })
-

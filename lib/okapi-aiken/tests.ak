@@ -201,8 +201,58 @@ test get_own_singleton_output() {
     NoDatum,
   )
 }
-// get_own_singleton_output_value
-// keep_own_lovelace_value
+
+test get_own_singleton_output_value() {
+  let addr = t.test_script_address(#"face")
+  let outs =
+    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+  let oref =
+    OutputReference { transaction_id: TransactionId(""), output_index: 0 }
+  let tinput =
+    Input {
+      output_reference: oref,
+      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+    }
+  let ctx =
+    ScriptContext {
+      purpose: Spend(oref),
+      transaction: placeholder()
+        |> fn(transaction) {
+             Transaction { ..transaction, inputs: [tinput], outputs: outs }
+           },
+    }
+  ok.get_own_singleton_output_value(ctx) == value.from_lovelace(5)
+}
+
+test keep_own_lovelace_value() {
+  let addr = t.test_script_address(#"face")
+  let outs =
+    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+  let oref =
+    OutputReference { transaction_id: TransactionId(""), output_index: 0 }
+  let tinput =
+    Input {
+      output_reference: oref,
+      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+    }
+  let ctx =
+    ScriptContext {
+      purpose: Spend(oref),
+      transaction: placeholder()
+        |> fn(transaction) {
+             Transaction { ..transaction, inputs: [tinput], outputs: outs }
+           },
+    }
+  ok.keep_own_lovelace_value(ctx)
+}
+
+test contains_single_token_of() {
+  let p = #"beef"
+  let tn = #"face"
+  let value = value.from_asset(p, tn, 1)
+
+  ok.contains_single_token_of(value, p)
+}
 // contains_single_token_of 
 // contains_only_lovelace
 // tx_signed_by 
