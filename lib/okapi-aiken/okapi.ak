@@ -181,13 +181,11 @@ pub fn init_68_datum(
 
 pub fn make_token_names(tn) -> List<value.AssetName> {
   let tokenName: value.AssetName = tn
-  trace string.from_bytearray(tokenName)
 
   let refTn = tokenName
-  trace string.from_bytearray(refTn)
 
   let userTn = tokenName
-  trace string.from_bytearray(userTn)
+
   [refTn, userTn]
 }
 
