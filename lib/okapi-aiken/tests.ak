@@ -324,10 +324,29 @@ test token_pair_prefix() {
   let tn = #"face"
   ok.token_pair_prefix(tn) == [#"000643b0face", #"000de140face"]
 }
-// make_token_names
-// make_token_prefix 
-// token_pair_prefix
-// make_fraction_prefix
-// fraction_pair_prefix
-// has_one_singleton_asset_less 
-// how_many_tokens
+
+test make_fraction_prefix() {
+  ok.make_fraction_prefix() == [#"000643b0", #"001bc280"]
+}
+
+test fraction_pair_prefix() {
+  let tn = #"face"
+  ok.fraction_pair_prefix(tn) == [#"000643b0face", #"001bc280face"]
+}
+
+test has_one_singleton_asset_less() {
+  let p: value.PolicyId = #"dead"
+  let t: value.AssetName = #"cafe"
+  let in = value.from_asset(p, t, 2)
+  let out = value.from_asset(p, t, 1)
+
+  ok.has_one_singleton_asset_less(in, out)
+}
+
+test how_many_tokens() {
+  let p: value.PolicyId = #"dead"
+  let t: value.AssetName = #"cafe"
+  let v = value.from_asset(p, t, 2)
+
+  ok.how_many_tokens(v, p) == 2
+}
