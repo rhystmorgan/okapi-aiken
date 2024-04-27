@@ -63,7 +63,7 @@ pub fn test_transaction() -> Transaction {
             output_index: 1,
           },
           output: Output {
-            address: test_address(#"face"),
+            address: test_script_address(#"face"),
             value: value.from_lovelace(5),
             datum: NoDatum,
             reference_script: None,
@@ -72,7 +72,7 @@ pub fn test_transaction() -> Transaction {
       ],
       outputs: [
         Output {
-          address: test_address(#"face"),
+          address: test_script_address(#"face"),
           value: value.from_lovelace(5),
           datum: NoDatum,
           reference_script: None,

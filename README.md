@@ -1,23 +1,19 @@
-# Fresh project
+# Okapi
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+Okapi is a helper function library written aiken to make drafting cardano smart contracts easier and faster.
 
-### Usage
-
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
-
-Then start the project:
+add the `lib/okapi-aiken` directory to your aiken project and import it with
 
 ```
-deno task start
+use okapi-aiken/okapi as ok
 ```
 
-This will watch the project directory and restart as necessary.
-
-in case of deno commad issues:
+now you can use any of the okapi helper functions to your validators
 
 ```
-export DENO_INSTALL="/home/plutus/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
+validator(o: VerificationKeyCredential) {
+  fn spend(d: Datum, r: Redeemer, c: ScriptContext) -> Bool {
+    ok.tx_signed_by(c.transaction, o)
+  }
+}
 ```
