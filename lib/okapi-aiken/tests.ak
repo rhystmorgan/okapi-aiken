@@ -27,6 +27,10 @@ test get_spend_ref() {
   ok.get_spend_ref(ctx) == placeholder_utxo
 }
 
+// test not_spend_ref() {
+//   let placeholder_utxo = OutputReference()
+// }
+
 test get_own_input() {
   let addr = t.test_script_address(#"face")
   let placeholder_utxo =
@@ -111,8 +115,8 @@ test get_own_outputs() {
       purpose: Spend(placeholder_utxo),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [pinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [pinput], outputs: outs }
+          },
     }
   ok.get_own_outputs(ctx) == outs
 }
@@ -137,8 +141,8 @@ test has_one_sigleton_output() {
       purpose: Spend(placeholder_utxo),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [pinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [pinput], outputs: outs }
+          },
     }
   ok.has_own_singleton_output(ctx)
 }
@@ -167,8 +171,8 @@ test has_more_singleton_output() {
       purpose: Spend(placeholder_utxo),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [pinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [pinput], outputs: outs }
+          },
     }
   ok.has_own_singleton_output(ctx) == False
 }
@@ -193,8 +197,8 @@ test get_own_singleton_output() {
       purpose: Spend(placeholder_utxo),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [pinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [pinput], outputs: outs }
+          },
     }
   ok.get_own_singleton_output(ctx) == t.test_output(
     addr,
@@ -219,8 +223,8 @@ test get_own_singleton_output_value() {
       purpose: Spend(oref),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [tinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [tinput], outputs: outs }
+          },
     }
   ok.get_own_singleton_output_value(ctx) == value.from_lovelace(5)
 }
@@ -241,8 +245,8 @@ test keep_own_lovelace_value() {
       purpose: Spend(oref),
       transaction: placeholder()
         |> fn(transaction) {
-             Transaction { ..transaction, inputs: [tinput], outputs: outs }
-           },
+            Transaction { ..transaction, inputs: [tinput], outputs: outs }
+          },
     }
   ok.keep_own_lovelace_value(ctx)
 }
@@ -277,11 +281,8 @@ test tx_signed_by_no_list() {
   let t =
     placeholder()
       |> fn(transaction) {
-           Transaction {
-             ..transaction,
-             extra_signatories: t.test_signatories(),
-           }
-         }
+          Transaction { ..transaction, extra_signatories: t.test_signatories() }
+        }
   ok.tx_signed_by_no_list(t, i, sigs)
 }
 
@@ -291,11 +292,8 @@ test tx_signed_by_list() {
   let t =
     placeholder()
       |> fn(transaction) {
-           Transaction {
-             ..transaction,
-             extra_signatories: t.test_signatories(),
-           }
-         }
+          Transaction { ..transaction, extra_signatories: t.test_signatories() }
+        }
   ok.tx_signed_by_list(t, sigs)
 }
 
