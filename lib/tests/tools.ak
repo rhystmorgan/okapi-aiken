@@ -1,18 +1,40 @@
 use aiken/dict
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/interval.{Interval, IntervalBound, NegativeInfinity, PositiveInfinity}
+use aiken/list.{any, filter, has}
 use aiken/transaction.{
-  Datum, Input, Mint, NoDatum, Output, OutputReference, ScriptContext,
-  ScriptPurpose, Spend, Transaction, TransactionId,
+  Datum, InlineDatum, Input, Mint, NoDatum, Output, OutputReference,
+  ScriptContext, ScriptPurpose, Spend, Transaction, TransactionId,
 }
 use aiken/transaction/credential.{
   Address, Script, VerificationKey, VerificationKeyCredential,
 }
-use aiken/transaction/value
+use aiken/transaction/value.{AssetName, PolicyId, Value, policies}
 
 // Testing Tools
 
 // This lib contains functions to create dummy data for testing
+
+pub type ScriptHash =
+  Hash<Blake2b_224, Script>
+
+pub fn makePolicyId(s: ScriptHash) -> PolicyId {
+  let policy = s
+  policy
+}
+
+pub fn make_asset_name(tn: ByteArray) -> AssetName {
+  let an = tn
+  an
+}
+
+pub fn test_value_with_token() {
+  todo
+}
+
+pub fn makeAdaValue(l: Int) -> Value {
+  value.from_lovelace(l * 1000000)
+}
 
 // Create Input
 pub fn test_input(oref: OutputReference, out: Output) -> Input {
@@ -34,6 +56,11 @@ pub fn test_oref(h: ByteArray, i: Int) -> OutputReference {
       output_index: i,
     }
   oref
+}
+
+pub fn test_tx_id(h: ByteArray) -> TransactionId {
+  let txid = TransactionId { hash: h }
+  txid
 }
 
 // Create ScriptContext
@@ -112,5 +139,10 @@ pub fn test_script_address(s: Hash<Blake2b_224, Script>) -> Address {
 
 pub fn test_signatories() -> List<ByteArray> {
   [#"face"]
+}
+
+pub fn testInlineDatum(d: Data) -> Datum {
+  let datum = InlineDatum(d)
+  datum
 }
 // fake input 10ADA

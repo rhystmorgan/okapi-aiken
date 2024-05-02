@@ -348,3 +348,26 @@ test how_many_tokens() {
 
   ok.how_many_tokens(v, p) == 2
 }
+
+test has_ref_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let refIn =
+    Input {
+      output_reference: t.test_oref(#"face", 2),
+      output: t.test_output(
+        t.test_address(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.test_oref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.has_ref_with_policy(ctx, p)
+}
