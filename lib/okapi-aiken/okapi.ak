@@ -455,7 +455,7 @@ pub fn get_out_with_credential(
 //   }
 // })
 
-pub fn withdraw4(
+pub fn validateList(
   validation_logic: fn(Output, Output) -> Bool,
   loanVal: ScriptHash,
   redeemer: List<(Int, Int)>,
@@ -485,7 +485,7 @@ pub fn withdraw4(
 
 pub fn withBurn(
   checkBurn: fn(Output) -> Bool,
-  _loanVal: ScriptHash,
+  script: ScriptHash,
   redeemer: List<Int>,
   tx: Transaction,
 ) -> Bool {
@@ -520,7 +520,7 @@ pub fn withdraw0(
 pub fn merkel0(
   validation_logic: fn(Output, Output) -> Bool,
   redeemer: List<(Int, Int)>,
-  loanVal: ScriptHash,
+  script: ScriptHash,
   ctx: ScriptContext,
 ) -> Bool {
   let ScriptContext { transaction: tx, .. } = ctx
@@ -535,4 +535,21 @@ pub fn merkel0(
   expect Some(out_utxo) = outputs |> list.at(out_ix)
 
   validation_logic(in_utxo, out_utxo)
+}
+
+pub fn listScriptIns(script: ScriptHash, ins: List<Input>) {
+  let scriptIns =
+    list.filter(
+      ins,
+      fn(in) {
+        in.output.address.payment_credential == ScriptCredential(script)
+      },
+    )
+
+  scriptIns
+}
+
+pub fn inputOutput(ins: List<Input>) -> List<Output> {
+  let inputOutputs = list.map(ins, fn(in) { in.output })
+  inputOutputs
 }

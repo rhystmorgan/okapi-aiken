@@ -1,7 +1,7 @@
 use aiken/list
 use aiken/transaction.{
   Input, NoDatum, OutputReference, ScriptContext, Spend, Transaction,
-  TransactionId, placeholder,
+  TransactionId, WithdrawFrom, placeholder,
 }
 use aiken/transaction/credential as c
 use aiken/transaction/value
@@ -370,4 +370,190 @@ test has_ref_with_policy() {
           },
     }
   ok.has_ref_with_policy(ctx, p)
+}
+
+test validate_list() {
+  let script = #"face"
+
+  let in1 =
+    t.testInput(
+      t.testOref(#"face", 1),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in2 =
+    t.testInput(
+      t.testOref(#"face", 2),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in3 =
+    t.testInput(
+      t.testOref(#"face", 3),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let out1 =
+    t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum)
+
+  let out2 =
+    t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum)
+
+  let out3 =
+    t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum)
+
+  let inputs =
+    [in1, in2, in3]
+
+  let outputs =
+    [out1, out2, out3]
+
+  let redeemer =
+    [(0, 0), (1, 1), (2, 2)]
+
+  let tx = Transaction { ..placeholder(), inputs: inputs, outputs: outputs }
+
+  ok.validateList(fn(in, out) { True }, script, redeemer, tx)
+}
+
+test input_outputs() {
+  let script = #"dead"
+
+  let in1 =
+    t.testInput(
+      t.testOref(#"face", 1),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in2 =
+    t.testInput(
+      t.testOref(#"face", 2),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in3 =
+    t.testInput(
+      t.testOref(#"face", 3),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let inList =
+    [in1, in2, in3]
+
+  ok.inputOutput(inList) == [in1.output, in2.output, in3.output]
+}
+
+test list_script_inputs() {
+  let script = #"cece"
+
+  let in1 =
+    t.testInput(
+      t.testOref(#"face", 1),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in2 =
+    t.testInput(
+      t.testOref(#"face", 2),
+      t.testOutput(t.testScriptAddress(#"beef"), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in3 =
+    t.testInput(
+      t.testOref(#"face", 3),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in4 =
+    t.testInput(
+      t.testOref(#"face", 4),
+      t.testOutput(t.testScriptAddress(#"aced"), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in5 =
+    t.testInput(
+      t.testOref(#"face", 5),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let in6 =
+    t.testInput(
+      t.testOref(#"face", 6),
+      t.testOutput(t.testScriptAddress(#"deaf"), t.makeAdaValue(20), NoDatum),
+    )
+
+  let inList =
+    [in1, in2, in3, in4, in5, in6]
+
+  ok.listScriptIns(script, inList) == [in1, in3, in5]
+}
+
+test with_burn() {
+  let script = #"deaf"
+
+  let in =
+    t.testInput(
+      t.testOref(#"face", 6),
+      t.testOutput(t.testScriptAddress(#"deaf"), t.makeAdaValue(20), NoDatum),
+    )
+
+  let r =
+    [0]
+
+  let tx = Transaction { ..placeholder(), inputs: [in] }
+
+  ok.withBurn(fn(out) { True }, script, r, tx)
+}
+
+test withdraw_0() {
+  let script = #"cafe"
+
+  let in =
+    t.testInput(
+      t.testOref(#"face", 1),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let out =
+    t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum)
+
+  let r = 1
+
+  let ctx =
+    ScriptContext {
+      purpose: WithdrawFrom(t.createStakeCredential(script)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, inputs: [in], outputs: [out] }
+          },
+    }
+
+  ok.withdraw0(fn(r, script, tx) { True }, r, ctx)
+}
+
+test merkel_0() {
+  let script = #"cafe"
+
+  let in =
+    t.testInput(
+      t.testOref(#"face", 1),
+      t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum),
+    )
+
+  let out =
+    t.testOutput(t.testScriptAddress(script), t.makeAdaValue(20), NoDatum)
+
+  let r =
+    [(0, 0)]
+
+  let ctx =
+    ScriptContext {
+      purpose: WithdrawFrom(t.createStakeCredential(script)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, inputs: [in], outputs: [out] }
+          },
+    }
+
+  ok.merkel0(fn(input, output) { True }, r, script, ctx)
 }

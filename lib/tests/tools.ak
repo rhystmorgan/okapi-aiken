@@ -4,10 +4,11 @@ use aiken/interval.{Interval, IntervalBound, NegativeInfinity, PositiveInfinity}
 use aiken/list.{any, filter, has}
 use aiken/transaction.{
   Datum, InlineDatum, Input, Mint, NoDatum, Output, OutputReference,
-  ScriptContext, ScriptPurpose, Spend, Transaction, TransactionId,
+  ScriptContext, ScriptPurpose, Spend, Transaction, TransactionId, WithdrawFrom,
 }
 use aiken/transaction/credential.{
-  Address, Script, VerificationKey, VerificationKeyCredential,
+  Address, Credential, Inline, Referenced, Script, ScriptCredential,
+  VerificationKey, VerificationKeyCredential,
 }
 use aiken/transaction/value.{AssetName, MintedValue, PolicyId, Value, policies}
 
@@ -224,4 +225,30 @@ pub fn testInlineDatum(d: Data) -> Datum {
   let datum = InlineDatum(d)
   datum
 }
+
 // fake input 10ADA
+pub fn createStakeCredential(
+  s: Hash<Blake2b_224, Script>,
+) -> Referenced<Credential> {
+  Inline(ScriptCredential(s))
+}
+
+pub fn stakeCompare(
+  left: Referenced<Credential>,
+  right: Referenced<Credential>,
+) -> Ordering {
+  if left == right {
+    Equal
+  } else {
+    Less
+  }
+}
+
+pub fn scriptCompare(_left: ScriptPurpose, _right: ScriptPurpose) -> Ordering {
+  Less
+}
+
+pub fn withPurpose(hash: ByteArray) -> ScriptPurpose {
+  let stake = createStakeCredential(hash)
+  WithdrawFrom(stake)
+}
