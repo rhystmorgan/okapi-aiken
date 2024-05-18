@@ -9,11 +9,94 @@ use aiken/transaction.{
 use aiken/transaction/credential.{
   Address, Script, VerificationKey, VerificationKeyCredential,
 }
-use aiken/transaction/value.{AssetName, PolicyId, Value, policies}
+use aiken/transaction/value.{AssetName, MintedValue, PolicyId, Value, policies}
 
-// Testing Tools
+//               //
+// Testing Tools //
+//               //
 
 // This lib contains functions to create dummy data for testing
+
+//        //
+// Values //
+//        //
+
+pub const aced = #"aced"
+
+pub const beef = #"beef"
+
+pub const cafe = #"cafe"
+
+pub const cece = #"cece"
+
+pub const dead = #"dead"
+
+pub const deaf = #"deaf"
+
+pub const face = #"face"
+
+pub const feed = #"feed"
+
+pub const oracleMintHash =
+  #"d07d942ea4581f003c2daa0e14799a2ab10063eea81bcf0ea90d1841"
+
+pub const oracleValHash =
+  #"c3b2b1b43f51c93bd1e32f264c94f12bd118692aad403ed0454a3102"
+
+//            //
+// UTxO Tools //
+//            //
+
+pub fn minValue() -> Value {
+  value.from_lovelace(2000000)
+}
+
+pub fn singletonTxValue(p: PolicyId, a: AssetName) -> Value {
+  let tokenValue = value.from_asset(p, a, 1)
+
+  value.merge(minValue(), tokenValue)
+}
+
+pub fn multiTokenTxValue(p: PolicyId, a: AssetName, i: Int) -> Value {
+  let tokenValue = value.from_asset(p, a, i)
+
+  value.merge(minValue(), tokenValue)
+}
+
+pub fn multiAssetTxValue(p: PolicyId, a1: AssetName, a2: AssetName) -> Value {
+  let tokenValue1 = tokenValue(p, a1, 1)
+  let tokenValue2 = tokenValue(p, a2, 1)
+
+  value.merge(tokenValue1, tokenValue2)
+}
+
+pub fn multiPolicyTxValue(vs: List<Value>, i: int) -> Value {
+  list.reduce(vs, value.zero(), value.merge)
+}
+
+//        //
+// Assets //
+//        //
+
+pub fn tokenValue(p: PolicyId, a: AssetName, i: Int) -> Value {
+  value.from_asset(p, a, i)
+}
+
+pub fn emptyNameValue(p: PolicyId, i: Int) -> Value {
+  value.from_asset(p, #"", i)
+}
+
+pub fn tokenMintedValue(p: PolicyId, a: AssetName, i: Int) -> MintedValue {
+  value.to_minted_value(tokenValue(p, a, i))
+}
+
+pub fn emptyNameMintedValue(p: PolicyId, i: Int) -> MintedValue {
+  value.to_minted_value(emptyNameValue(p, i))
+}
+
+//                 //
+// Basic Functions //
+//                 //
 
 pub type ScriptHash =
   Hash<Blake2b_224, Script>
@@ -23,13 +106,9 @@ pub fn makePolicyId(s: ScriptHash) -> PolicyId {
   policy
 }
 
-pub fn make_asset_name(tn: ByteArray) -> AssetName {
+pub fn makeAssetName(tn: ByteArray) -> AssetName {
   let an = tn
   an
-}
-
-pub fn test_value_with_token() {
-  todo
 }
 
 pub fn makeAdaValue(l: Int) -> Value {
@@ -37,19 +116,19 @@ pub fn makeAdaValue(l: Int) -> Value {
 }
 
 // Create Input
-pub fn test_input(oref: OutputReference, out: Output) -> Input {
+pub fn testInput(oref: OutputReference, out: Output) -> Input {
   let in: Input = Input { output_reference: oref, output: out }
   in
 }
 
-pub fn test_output(a: Address, v: value.Value, d: Datum) -> Output {
+pub fn testOutput(a: Address, v: value.Value, d: Datum) -> Output {
   let out: Output =
     Output { address: a, value: v, datum: d, reference_script: None }
   out
 }
 
 // Create an OutputReference
-pub fn test_oref(h: ByteArray, i: Int) -> OutputReference {
+pub fn testOref(h: ByteArray, i: Int) -> OutputReference {
   let oref: OutputReference =
     OutputReference {
       transaction_id: TransactionId { hash: h },
@@ -58,28 +137,28 @@ pub fn test_oref(h: ByteArray, i: Int) -> OutputReference {
   oref
 }
 
-pub fn test_tx_id(h: ByteArray) -> TransactionId {
+pub fn testTxId(h: ByteArray) -> TransactionId {
   let txid = TransactionId { hash: h }
   txid
 }
 
 // Create ScriptContext
-pub fn test_context(t: Transaction, p: ScriptPurpose) -> ScriptContext {
+pub fn testContext(t: Transaction, p: ScriptPurpose) -> ScriptContext {
   let ctx = ScriptContext { transaction: t, purpose: p }
   ctx
 }
 
 // Create ScriptPurpose
-pub fn test_mint_purpose(p: value.PolicyId) -> ScriptPurpose {
+pub fn testMintPurpose(p: value.PolicyId) -> ScriptPurpose {
   Mint(p)
 }
 
-pub fn test_spend_purpose(o: OutputReference) -> ScriptPurpose {
+pub fn testSpendPurpose(o: OutputReference) -> ScriptPurpose {
   Spend(o)
 }
 
 // Create Transaction
-pub fn test_transaction() -> Transaction {
+pub fn testTransaction() -> Transaction {
   let t =
     Transaction {
       ..transaction.placeholder(),
@@ -90,7 +169,7 @@ pub fn test_transaction() -> Transaction {
             output_index: 1,
           },
           output: Output {
-            address: test_script_address(#"face"),
+            address: testScriptAddress(#"face"),
             value: value.from_lovelace(5),
             datum: NoDatum,
             reference_script: None,
@@ -99,7 +178,7 @@ pub fn test_transaction() -> Transaction {
       ],
       outputs: [
         Output {
-          address: test_script_address(#"face"),
+          address: testScriptAddress(#"face"),
           value: value.from_lovelace(5),
           datum: NoDatum,
           reference_script: None,
@@ -118,13 +197,13 @@ pub fn test_transaction() -> Transaction {
           is_inclusive: True,
         },
       },
-      extra_signatories: test_signatories(),
+      extra_signatories: testSignatories(),
       id: TransactionId { hash: #"" },
     }
   t
 }
 
-pub fn test_address(pkh: Hash<Blake2b_224, VerificationKey>) -> Address {
+pub fn testAddress(pkh: Hash<Blake2b_224, VerificationKey>) -> Address {
   let addr =
     Address {
       payment_credential: VerificationKeyCredential(pkh),
@@ -133,11 +212,11 @@ pub fn test_address(pkh: Hash<Blake2b_224, VerificationKey>) -> Address {
   addr
 }
 
-pub fn test_script_address(s: Hash<Blake2b_224, Script>) -> Address {
+pub fn testScriptAddress(s: Hash<Blake2b_224, Script>) -> Address {
   credential.from_script(s)
 }
 
-pub fn test_signatories() -> List<ByteArray> {
+pub fn testSignatories() -> List<ByteArray> {
   [#"face"]
 }
 

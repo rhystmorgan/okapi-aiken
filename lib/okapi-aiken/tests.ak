@@ -32,14 +32,14 @@ test get_spend_ref() {
 // }
 
 test get_own_input() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
   let placeholder_utxo =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
 
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -52,14 +52,14 @@ test get_own_input() {
 }
 
 test get_own_script_hash() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
   let placeholder_utxo =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
 
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -72,14 +72,14 @@ test get_own_script_hash() {
 }
 
 test get_own_input_value() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
   let placeholder_utxo =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
 
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -92,13 +92,13 @@ test get_own_input_value() {
 }
 
 test get_own_outputs() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
 
   let outs =
     [
-      t.test_output(addr, value.from_lovelace(5), NoDatum),
-      t.test_output(addr, value.from_lovelace(10), NoDatum),
-      t.test_output(addr, value.from_lovelace(5), NoDatum),
+      t.testOutput(addr, value.from_lovelace(5), NoDatum),
+      t.testOutput(addr, value.from_lovelace(10), NoDatum),
+      t.testOutput(addr, value.from_lovelace(5), NoDatum),
     ]
 
   let placeholder_utxo =
@@ -107,7 +107,7 @@ test get_own_outputs() {
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -122,10 +122,10 @@ test get_own_outputs() {
 }
 
 test has_one_sigleton_output() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
 
   let outs =
-    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+    [t.testOutput(addr, value.from_lovelace(5), NoDatum)]
 
   let placeholder_utxo =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
@@ -133,7 +133,7 @@ test has_one_sigleton_output() {
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -148,13 +148,13 @@ test has_one_sigleton_output() {
 }
 
 test has_more_singleton_output() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
 
   let outs =
     [
-      t.test_output(addr, value.from_lovelace(5), NoDatum),
-      t.test_output(addr, value.from_lovelace(10), NoDatum),
-      t.test_output(addr, value.from_lovelace(5), NoDatum),
+      t.testOutput(addr, value.from_lovelace(5), NoDatum),
+      t.testOutput(addr, value.from_lovelace(10), NoDatum),
+      t.testOutput(addr, value.from_lovelace(5), NoDatum),
     ]
 
   let placeholder_utxo =
@@ -163,7 +163,7 @@ test has_more_singleton_output() {
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -178,10 +178,10 @@ test has_more_singleton_output() {
 }
 
 test get_own_singleton_output() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
 
   let outs =
-    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+    [t.testOutput(addr, value.from_lovelace(5), NoDatum)]
 
   let placeholder_utxo =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
@@ -189,7 +189,7 @@ test get_own_singleton_output() {
   let pinput =
     Input {
       output_reference: placeholder_utxo,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
 
   let ctx =
@@ -200,7 +200,7 @@ test get_own_singleton_output() {
             Transaction { ..transaction, inputs: [pinput], outputs: outs }
           },
     }
-  ok.get_own_singleton_output(ctx) == t.test_output(
+  ok.get_own_singleton_output(ctx) == t.testOutput(
     addr,
     value.from_lovelace(5),
     NoDatum,
@@ -208,15 +208,15 @@ test get_own_singleton_output() {
 }
 
 test get_own_singleton_output_value() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
   let outs =
-    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+    [t.testOutput(addr, value.from_lovelace(5), NoDatum)]
   let oref =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
   let tinput =
     Input {
       output_reference: oref,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
   let ctx =
     ScriptContext {
@@ -230,15 +230,15 @@ test get_own_singleton_output_value() {
 }
 
 test keep_own_lovelace_value() {
-  let addr = t.test_script_address(#"face")
+  let addr = t.testScriptAddress(#"face")
   let outs =
-    [t.test_output(addr, value.from_lovelace(5), NoDatum)]
+    [t.testOutput(addr, value.from_lovelace(5), NoDatum)]
   let oref =
     OutputReference { transaction_id: TransactionId(""), output_index: 0 }
   let tinput =
     Input {
       output_reference: oref,
-      output: t.test_output(addr, value.from_lovelace(5), NoDatum),
+      output: t.testOutput(addr, value.from_lovelace(5), NoDatum),
     }
   let ctx =
     ScriptContext {
@@ -266,8 +266,8 @@ test contains_only_lovelace() {
 }
 
 test tx_signed_by() {
-  let s = t.test_address(#"face")
-  let sigs = t.test_signatories()
+  let s = t.testAddress(#"face")
+  let sigs = t.testSignatories()
   let t =
     placeholder()
       |> fn(transaction) { Transaction { ..transaction, extra_signatories: sigs } }
@@ -275,24 +275,24 @@ test tx_signed_by() {
 }
 
 test tx_signed_by_no_list() {
-  let s = t.test_address(#"face")
-  let sigs = t.test_signatories()
+  let s = t.testAddress(#"face")
+  let sigs = t.testSignatories()
   let i = 1
   let t =
     placeholder()
       |> fn(transaction) {
-          Transaction { ..transaction, extra_signatories: t.test_signatories() }
+          Transaction { ..transaction, extra_signatories: t.testSignatories() }
         }
   ok.tx_signed_by_no_list(t, i, sigs)
 }
 
 test tx_signed_by_list() {
-  let sigs = t.test_signatories()
+  let sigs = t.testSignatories()
 
   let t =
     placeholder()
       |> fn(transaction) {
-          Transaction { ..transaction, extra_signatories: t.test_signatories() }
+          Transaction { ..transaction, extra_signatories: t.testSignatories() }
         }
   ok.tx_signed_by_list(t, sigs)
 }
@@ -353,9 +353,9 @@ test has_ref_with_policy() {
   let p: value.PolicyId = #"dead"
   let refIn =
     Input {
-      output_reference: t.test_oref(#"face", 2),
-      output: t.test_output(
-        t.test_address(#"face"),
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
         value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
         NoDatum,
       ),
@@ -363,7 +363,7 @@ test has_ref_with_policy() {
 
   let ctx =
     ScriptContext {
-      purpose: Spend(t.test_oref(#"cafe", 5)),
+      purpose: Spend(t.testOref(#"cafe", 5)),
       transaction: placeholder()
         |> fn(transaction) {
             Transaction { ..transaction, reference_inputs: [refIn] }

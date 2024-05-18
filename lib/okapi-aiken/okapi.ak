@@ -5,11 +5,11 @@ use aiken/hash.{Blake2b_224, Hash}
 use aiken/list
 use aiken/string
 use aiken/transaction.{
-  InlineDatum, Input, Mint, Output, OutputReference, ScriptContext, Spend,
-  Transaction, find_input, find_script_outputs,
+  InlineDatum, Input, Mint, Output, OutputReference, Redeemer, ScriptContext,
+  Spend, Transaction, WithdrawFrom, find_input, find_script_outputs,
 }
 use aiken/transaction/credential.{
-  Credential, Script, ScriptCredential, VerificationKey,
+  Credential, Inline, Script, ScriptCredential, VerificationKey,
 }
 use aiken/transaction/value.{
   AssetName, PolicyId, Value, lovelace_of, policies, quantity_of,
@@ -435,6 +435,7 @@ pub fn get_out_with_credential(
     )
   out
 }
+
 // ideas 
 
 // && list -> so you can just line your checks up and return a bool
@@ -453,3 +454,85 @@ pub fn get_out_with_credential(
 //     _ -> False
 //   }
 // })
+
+pub fn withdraw4(
+  validation_logic: fn(Output, Output) -> Bool,
+  loanVal: ScriptHash,
+  redeemer: List<(Int, Int)>,
+  tx: Transaction,
+) -> Bool {
+  let Transaction { inputs, outputs, .. } = tx
+
+  let txList =
+    list.map(
+      redeemer,
+      fn(index) {
+        expect (in, out) = index
+        expect Some(input) = list.at(inputs, in)
+        expect Some(output) = list.at(outputs, out)
+        (input, output)
+      },
+    )
+
+  list.all(
+    txList,
+    fn(io) {
+      expect (input, output) = io
+      validation_logic(input.output, output)
+    },
+  )
+}
+
+pub fn withBurn(
+  checkBurn: fn(Output) -> Bool,
+  _loanVal: ScriptHash,
+  redeemer: List<Int>,
+  tx: Transaction,
+) -> Bool {
+  let Transaction { inputs, .. } = tx
+
+  let txList =
+    list.map(
+      redeemer,
+      fn(index) {
+        let in = index
+        expect Some(input) = list.at(inputs, in)
+        input
+      },
+    )
+
+  list.all(txList, fn(input) { checkBurn(input.output) })
+}
+
+pub fn withdraw0(
+  withdrawal_logic: fn(Redeemer, Hash<Blake2b_224, Script>, Transaction) -> Bool,
+  redeemer: Redeemer,
+  ctx: ScriptContext,
+) -> Bool {
+  expect ScriptContext { transaction: tx, purpose: WithdrawFrom(stake_cred) } =
+    ctx
+
+  expect Inline(ScriptCredential(own_validator)) = stake_cred
+
+  withdrawal_logic(redeemer, own_validator, tx)
+}
+
+pub fn merkel0(
+  validation_logic: fn(Output, Output) -> Bool,
+  redeemer: List<(Int, Int)>,
+  loanVal: ScriptHash,
+  ctx: ScriptContext,
+) -> Bool {
+  let ScriptContext { transaction: tx, .. } = ctx
+
+  let Transaction { inputs, outputs, .. } = tx
+
+  expect [(in_ix, out_ix)] = redeemer
+
+  expect Some(Input { output: in_utxo, output_reference: _in_ref }) =
+    inputs |> list.at(in_ix)
+
+  expect Some(out_utxo) = outputs |> list.at(out_ix)
+
+  validation_logic(in_utxo, out_utxo)
+}
