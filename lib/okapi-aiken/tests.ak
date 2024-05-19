@@ -1,7 +1,7 @@
 use aiken/list
 use aiken/transaction.{
-  Input, NoDatum, OutputReference, ScriptContext, Spend, Transaction,
-  TransactionId, WithdrawFrom, placeholder,
+  InlineDatum, Input, NoDatum, OutputReference, ScriptContext, Spend,
+  Transaction, TransactionId, WithdrawFrom, placeholder,
 }
 use aiken/transaction/credential as c
 use aiken/transaction/value
@@ -349,6 +349,18 @@ test how_many_tokens() {
   ok.how_many_tokens(v, p) == 2
 }
 
+test datum_match() {
+  let datum =
+    ok.TokenMetadata { name: #"face", image: #"face", mediaType: #"face" }
+
+  let output =
+    t.testOutput(t.testAddress(#"dead"), t.makeAdaValue(20), InlineDatum(datum))
+
+  let input = t.testInput(t.testOref(#"cece", 1), output)
+
+  ok.datum_match(input.output, output)
+}
+
 test has_ref_with_policy() {
   let p: value.PolicyId = #"dead"
   let refIn =
@@ -370,6 +382,353 @@ test has_ref_with_policy() {
           },
     }
   ok.has_ref_with_policy(ctx, p)
+}
+
+test get_ref_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let refIn =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.get_ref_with_policy(ctx, p) == refIn
+}
+
+test has_in_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.has_in_with_policy(ctx, p)
+}
+
+test get_in_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.get_in_with_policy(ctx, p) == in
+}
+
+test has_out_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let out =
+    t.testOutput(
+      t.testAddress(#"face"),
+      value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+      NoDatum,
+    )
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.has_out_with_policy(ctx, p)
+}
+
+test get_out_with_policy() {
+  let p: value.PolicyId = #"dead"
+  let out =
+    t.testOutput(
+      t.testAddress(#"face"),
+      value.merge(t.makeAdaValue(10), value.from_asset(p, #"", 1)),
+      NoDatum,
+    )
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.get_out_with_policy(ctx, p) == out
+}
+
+test has_ref_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let refIn =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.has_ref_with_token(ctx, p, a)
+}
+
+test get_ref_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let refIn =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.get_ref_with_token(ctx, p, a) == refIn
+}
+
+test has_in_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.has_in_with_token(ctx, p, a)
+}
+
+test get_in_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(
+        t.testAddress(#"face"),
+        value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+        NoDatum,
+      ),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.get_in_with_token(ctx, p, a) == in
+}
+
+test has_out_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let out =
+    t.testOutput(
+      t.testAddress(#"face"),
+      value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+      NoDatum,
+    )
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.has_out_with_token(ctx, p, a)
+}
+
+test get_out_with_token() {
+  let p: value.PolicyId = #"dead"
+  let a: value.AssetName = #"feed"
+
+  let out =
+    t.testOutput(
+      t.testAddress(#"face"),
+      value.merge(t.makeAdaValue(10), value.from_asset(p, a, 1)),
+      NoDatum,
+    )
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.get_out_with_token(ctx, p, a) == out
+}
+
+test has_ref_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let refIn =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.has_ref_with_credential(ctx, cred)
+}
+
+test get_ref_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let refIn =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) {
+            Transaction { ..transaction, reference_inputs: [refIn] }
+          },
+    }
+  ok.get_ref_with_credential(ctx, cred) == refIn
+}
+
+test has_in_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.has_in_with_credential(ctx, cred)
+}
+
+test get_in_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let in =
+    Input {
+      output_reference: t.testOref(#"face", 2),
+      output: t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum),
+    }
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, inputs: [in] } },
+    }
+  ok.get_in_with_credential(ctx, cred) == in
+}
+
+test has_out_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let out = t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum)
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.has_out_with_credential(ctx, cred)
+}
+
+test get_out_with_credential() {
+  let pkh = #"dead"
+  let cred = c.VerificationKeyCredential(pkh)
+
+  let out = t.testOutput(t.testAddress(pkh), t.makeAdaValue(10), NoDatum)
+
+  let ctx =
+    ScriptContext {
+      purpose: Spend(t.testOref(#"cafe", 5)),
+      transaction: placeholder()
+        |> fn(transaction) { Transaction { ..transaction, outputs: [out] } },
+    }
+  ok.get_out_with_credential(ctx, cred) == out
 }
 
 test validate_list() {

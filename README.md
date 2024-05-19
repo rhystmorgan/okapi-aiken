@@ -70,3 +70,10 @@ has_input_from_credential
 get_input_from_credential
 has_output_from_credential
 get_output_from_credential
+
+validateList
+withBurn
+withdraw0
+merkel0
+listScriptInputs
+inputOutputs

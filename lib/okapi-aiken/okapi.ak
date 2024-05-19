@@ -436,25 +436,6 @@ pub fn get_out_with_credential(
   out
 }
 
-// ideas 
-
-// && list -> so you can just line your checks up and return a bool
-
-// pub fn to_datum(raw: Data) -> types.Datum {
-//   expect parsed: types.Datum = raw
-//   parsed
-// }
-
-// expect is inlined so you can save a whole bunch of space doing this
-
-// list.any(outputs, fn(output) {
-//   when output.datum {
-//     InlineDatum(raw_data) ->
-//       raw_data == thing
-//     _ -> False
-//   }
-// })
-
 pub fn validateList(
   validation_logic: fn(Output, Output) -> Bool,
   loanVal: ScriptHash,
@@ -553,3 +534,21 @@ pub fn inputOutput(ins: List<Input>) -> List<Output> {
   let inputOutputs = list.map(ins, fn(in) { in.output })
   inputOutputs
 }
+// ideas 
+
+// && list -> so you can just line your checks up and return a bool
+
+// pub fn to_datum(raw: Data) -> types.Datum {
+//   expect parsed: types.Datum = raw
+//   parsed
+// }
+
+// expect is inlined so you can save a whole bunch of space doing this
+
+// list.any(outputs, fn(output) {
+//   when output.datum {
+//     InlineDatum(raw_data) ->
+//       raw_data == thing
+//     _ -> False
+//   }
+// })
