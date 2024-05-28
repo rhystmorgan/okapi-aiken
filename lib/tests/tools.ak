@@ -42,7 +42,7 @@ pub const oracleMintHash =
   #"d07d942ea4581f003c2daa0e14799a2ab10063eea81bcf0ea90d1841"
 
 pub const oracleValHash =
-  #"c3b2b1b43f51c93bd1e32f264c94f12bd118692aad403ed0454a3102"
+  #"e1c6e35d758c4ca601331073f4a02f30cf8bfbd465625e2bce4b8597"
 
 //            //
 // UTxO Tools //
