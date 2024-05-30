@@ -1,0 +1,100 @@
+{
+  "preamble": {
+    "title": "rhystmorgan/okapi-aiken",
+    "description": "Aiken contracts for project 'rhystmorgan/okapi-aiken'",
+    "version": "0.0.0",
+    "plutusVersion": "v2",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.0.26-alpha+075668b"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "oktest.oracle",
+      "datum": {
+        "title": "d",
+        "schema": {
+          "$ref": "#/definitions/oktest~1ODatum"
+        }
+      },
+      "redeemer": {
+        "title": "r",
+        "schema": {
+          "$ref": "#/definitions/oktest~1OAction"
+        }
+      },
+      "parameters": [
+        {
+          "title": "owner",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        },
+        {
+          "title": "p",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        }
+      ],
+      "compiledCode": "590388010000323232323232322322322323232232322533300d32323253330103006301137540022646464a666026601a60286ea80284c8c8c8c8c8c8c8c8c94ccc070cdc3a4008603a6ea80044c8c94ccc078cdd7980618101baa005300c30203754008266e20dd6980398101baa019375a600e60406ea8008528180b0009810980f1baa001163005301d3754002646464a66603a602e603c6ea80044c088c07cdd50008b198021bac3006301e37546014603c6ea80408cc030c008dd59803180f9baa001019300100122533301f00114bd70099810180e981080099801001181100099191919299980e980999802002198019bac3007301f37546016603e6ea8044c0080444c94ccc078c060c07cdd50008981198101baa0011632533302100114c0103d87a800013374a9000198111811800a5eb80cc00cdd61803980f9baa300b301f37540220022c6002020464a66603a6026603c6ea80044dd71811180f9baa00116300a301e37546014603c6ea8c94ccc074c05cc078dd500089803180f9baa3022301f37540022c66446600c004466ebcc034c084dd50008011bac300a301e37546014603c6ea8004c94ccc074c04cc078dd500089811180f9baa001163005301e375400244646600200200644a666042002297ae0132325333020325333021301730223754002266e3c018dd7181318119baa00114a0601c60446ea8c038c088dd5001099812001198020020008998020020009812801181180091299980f0008a4000266e01200233002002302100122323300100100322533301f00114c103d87a800013232533301e300500213374a90001981100125eb804cc010010004c08c008c0840048c074c0780048c070c074c074004dd6980d180d8011bad3019001301537540142660046eb0c060c064c064c064c064c064c064c064c064c054dd51800980a9baa0070112301800122323300100100322533301800114a0264a66602c66e3cdd7180d8010020a51133003003001301b0013015301237540022c6028602a0046026002601e6ea80045261365632533300c300600113232323253330133016002149858dd6980a000980a0011bad3012001300e37540062a66601860040022a66601e601c6ea800c5261616300c37540046e1d2002300100325333008300230093754002264646464a66601e60240042930b1bad30100013010002375a601c00260146ea800458dc3a40006eb8004dd7000ab9a5573aaae7955cfaba05742ae881",
+      "hash": "e1c6e35d758c4ca601331073f4a02f30cf8bfbd465625e2bce4b8597"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "oktest/OAction": {
+      "title": "OAction",
+      "anyOf": [
+        {
+          "title": "Update",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "a",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "t",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "Close",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "oktest/ODatum": {
+      "title": "ODatum",
+      "anyOf": [
+        {
+          "title": "ODatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "adaUsd",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "timestamp",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

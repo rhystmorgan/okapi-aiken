@@ -5,11 +5,15 @@ use aiken/hash.{Blake2b_224, Hash}
 use aiken/list
 use aiken/string
 use aiken/transaction.{
-  Input, Mint, Output, OutputReference, ScriptContext, Spend, Transaction,
-  find_input, find_script_outputs,
+  InlineDatum, Input, Mint, Output, OutputReference, Redeemer, ScriptContext,
+  Spend, Transaction, WithdrawFrom, find_input, find_script_outputs,
 }
-use aiken/transaction/credential.{Script, ScriptCredential, VerificationKey}
-use aiken/transaction/value.{AssetName, PolicyId, Value, lovelace_of}
+use aiken/transaction/credential.{
+  Credential, Inline, Script, ScriptCredential, VerificationKey,
+}
+use aiken/transaction/value.{
+  AssetName, PolicyId, Value, lovelace_of, policies, quantity_of,
+}
 
 // This is a module of Helper Functions to make building Validators much simpler
 // Just like Plutarch-Extra 
@@ -243,9 +247,296 @@ pub fn how_many_tokens(v: Value, p: PolicyId) -> Int {
 pub fn datum_match(in: Output, out: Output) -> Bool {
   in.datum == out.datum
 }
+
+pub fn has_ref_with_policy(ctx: ScriptContext, policy: PolicyId) -> Bool {
+  list.any(
+    ctx.transaction.reference_inputs,
+    fn(ref) { list.has(policies(ref.output.value), policy) },
+  )
+}
+
+pub fn get_ref_with_policy(ctx: ScriptContext, policy: PolicyId) -> Input {
+  expect Some(refIn) =
+    list.find(
+      ctx.transaction.reference_inputs,
+      fn(ref) { list.has(policies(ref.output.value), policy) },
+    )
+
+  refIn
+}
+
+pub fn has_in_with_policy(ctx: ScriptContext, policy: PolicyId) -> Bool {
+  list.any(
+    ctx.transaction.inputs,
+    fn(ref) { list.has(policies(ref.output.value), policy) },
+  )
+}
+
+pub fn get_in_with_policy(ctx: ScriptContext, policy: PolicyId) -> Input {
+  expect Some(in) =
+    list.find(
+      ctx.transaction.inputs,
+      fn(input) { list.has(policies(input.output.value), policy) },
+    )
+
+  in
+}
+
+pub fn has_out_with_policy(ctx: ScriptContext, policy: PolicyId) -> Bool {
+  list.any(
+    ctx.transaction.outputs,
+    fn(output) { list.has(policies(output.value), policy) },
+  )
+}
+
+pub fn get_out_with_policy(ctx: ScriptContext, policy: PolicyId) -> Output {
+  expect Some(out) =
+    list.find(
+      ctx.transaction.outputs,
+      fn(output) { list.has(policies(output.value), policy) },
+    )
+  out
+}
+
+pub fn has_ref_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Bool {
+  list.any(
+    ctx.transaction.reference_inputs,
+    fn(input) { quantity_of(input.output.value, policy, asset) > 0 },
+  )
+}
+
+pub fn get_ref_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Input {
+  expect Some(refIn) =
+    list.find(
+      ctx.transaction.reference_inputs,
+      fn(input) { quantity_of(input.output.value, policy, asset) > 0 },
+    )
+  refIn
+}
+
+pub fn has_in_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Bool {
+  list.any(
+    ctx.transaction.inputs,
+    fn(input) { quantity_of(input.output.value, policy, asset) > 0 },
+  )
+}
+
+pub fn get_in_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Input {
+  expect Some(in) =
+    list.find(
+      ctx.transaction.inputs,
+      fn(input) { quantity_of(input.output.value, policy, asset) > 0 },
+    )
+  in
+}
+
+pub fn has_out_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Bool {
+  list.any(
+    ctx.transaction.outputs,
+    fn(output) { quantity_of(output.value, policy, asset) > 0 },
+  )
+}
+
+pub fn get_out_with_token(
+  ctx: ScriptContext,
+  policy: PolicyId,
+  asset: AssetName,
+) -> Output {
+  expect Some(out) =
+    list.find(
+      ctx.transaction.outputs,
+      fn(output) { quantity_of(output.value, policy, asset) > 0 },
+    )
+  out
+}
+
+pub fn has_ref_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Bool {
+  list.any(
+    ctx.transaction.reference_inputs,
+    fn(ref) { ref.output.address.payment_credential == credential },
+  )
+}
+
+pub fn get_ref_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Input {
+  expect Some(in) =
+    list.find(
+      ctx.transaction.reference_inputs,
+      fn(ref) { ref.output.address.payment_credential == credential },
+    )
+  in
+}
+
+pub fn has_in_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Bool {
+  list.any(
+    ctx.transaction.inputs,
+    fn(input) { input.output.address.payment_credential == credential },
+  )
+}
+
+pub fn get_in_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Input {
+  expect Some(in) =
+    list.find(
+      ctx.transaction.inputs,
+      fn(input) { input.output.address.payment_credential == credential },
+    )
+  in
+}
+
+pub fn has_out_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Bool {
+  list.any(
+    ctx.transaction.outputs,
+    fn(output) { output.address.payment_credential == credential },
+  )
+}
+
+pub fn get_out_with_credential(
+  ctx: ScriptContext,
+  credential: Credential,
+) -> Output {
+  expect Some(out) =
+    list.find(
+      ctx.transaction.outputs,
+      fn(output) { output.address.payment_credential == credential },
+    )
+  out
+}
+
+pub fn validateList(
+  validation_logic: fn(Output, Output) -> Bool,
+  loanVal: ScriptHash,
+  redeemer: List<(Int, Int)>,
+  tx: Transaction,
+) -> Bool {
+  let Transaction { inputs, outputs, .. } = tx
+
+  let txList =
+    list.map(
+      redeemer,
+      fn(index) {
+        expect (in, out) = index
+        expect Some(input) = list.at(inputs, in)
+        expect Some(output) = list.at(outputs, out)
+        (input, output)
+      },
+    )
+
+  list.all(
+    txList,
+    fn(io) {
+      expect (input, output) = io
+      validation_logic(input.output, output)
+    },
+  )
+}
+
+pub fn withBurn(
+  checkBurn: fn(Output) -> Bool,
+  script: ScriptHash,
+  redeemer: List<Int>,
+  tx: Transaction,
+) -> Bool {
+  let Transaction { inputs, .. } = tx
+
+  let txList =
+    list.map(
+      redeemer,
+      fn(index) {
+        let in = index
+        expect Some(input) = list.at(inputs, in)
+        input
+      },
+    )
+
+  list.all(txList, fn(input) { checkBurn(input.output) })
+}
+
+pub fn withdraw0(
+  withdrawal_logic: fn(Redeemer, Hash<Blake2b_224, Script>, Transaction) -> Bool,
+  redeemer: Redeemer,
+  ctx: ScriptContext,
+) -> Bool {
+  expect ScriptContext { transaction: tx, purpose: WithdrawFrom(stake_cred) } =
+    ctx
+
+  expect Inline(ScriptCredential(own_validator)) = stake_cred
+
+  withdrawal_logic(redeemer, own_validator, tx)
+}
+
+pub fn merkel0(
+  validation_logic: fn(Output, Output) -> Bool,
+  redeemer: List<(Int, Int)>,
+  script: ScriptHash,
+  ctx: ScriptContext,
+) -> Bool {
+  let ScriptContext { transaction: tx, .. } = ctx
+
+  let Transaction { inputs, outputs, .. } = tx
+
+  expect [(in_ix, out_ix)] = redeemer
+
+  expect Some(Input { output: in_utxo, output_reference: _in_ref }) =
+    inputs |> list.at(in_ix)
+
+  expect Some(out_utxo) = outputs |> list.at(out_ix)
+
+  validation_logic(in_utxo, out_utxo)
+}
+
+pub fn listScriptIns(script: ScriptHash, ins: List<Input>) {
+  let scriptIns =
+    list.filter(
+      ins,
+      fn(in) {
+        in.output.address.payment_credential == ScriptCredential(script)
+      },
+    )
+
+  scriptIns
+}
+
+pub fn inputOutput(ins: List<Input>) -> List<Output> {
+  let inputOutputs = list.map(ins, fn(in) { in.output })
+  inputOutputs
+}
 // ideas 
 
-// && list -> so you can just line your functions up and return a bool
+// && list -> so you can just line your checks up and return a bool
 
 // pub fn to_datum(raw: Data) -> types.Datum {
 //   expect parsed: types.Datum = raw
