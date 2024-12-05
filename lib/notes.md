@@ -26,3 +26,39 @@ so I will see if any of them fit well into those `categories` and if so i will c
 
 ---
 
+## Okapi 0.2
+
+Functions:
+
+elan
+  return 
+
+general
+  authTokenOutput() -> (Value, Datum)
+
+inOut
+  listInputOutputs() -> List(Output)
+  listScriptIns() -> List(Input)
+  listScriptOuts() -> List(Output)
+  listScriptIO() -> (List(Inputs), List(Outputs))
+  checkTokenPair() -> validate(Input, Input, Output, Output) -> Bool
+
+mint 
+  mintTokens() -> Pairs
+  mintToken() -> Pair
+
+tag
+  taggedOutput() -> Output
+  taggedInOut() -> List(Input, Output)
+
+spend
+  getOrefInput() -> Input
+  getOrefInputOut() -> Output
+  getOrefScriptHash() -> ScriptHash
+  getOrefValue() -> Value
+  getOrefDatumValue() -> (Datum, Value)
+  ownSpendIO() -> (Input, Output)
+  ownSingletonOutput() -> Output
+
+withdrawal
+  mapOutputIndex

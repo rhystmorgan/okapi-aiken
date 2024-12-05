@@ -6,7 +6,7 @@ pub fn listInputOutputs(ins: List<Input>) -> List<Output> {
   inputOutputs
 }
 
-pub fn listScriptIns(script: ScriptHash, ins: List<Input>) {
+pub fn listScriptIns(script: ScriptHash, ins: List<Input>) -> List<Input> {
   let scriptIns =
     list.filter(
       ins,
@@ -14,6 +14,16 @@ pub fn listScriptIns(script: ScriptHash, ins: List<Input>) {
     )
 
   scriptIns
+}
+
+pub fn listScriptOuts(script: ScriptHash, outs: List<Output>) -> List<Output> {
+  let scriptOuts =
+    list.filter(
+      outs,
+      fn(out) { output.address.payment_credential == Script(script) },
+    )
+
+  scriptOuts
 }
 
 pub fn listScriptIO(
