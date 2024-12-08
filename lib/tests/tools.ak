@@ -61,21 +61,6 @@ pub fn emptyNameValue(p: PolicyId, i: Int) -> Value {
 // Basic Functions //
 //                 //
 
-pub fn makePolicyId(s: ScriptHash) -> PolicyId {
-  let policy = s
-  policy
-}
-
-pub fn makeAssetName(tn: ByteArray) -> AssetName {
-  let an = tn
-  an
-}
-
 pub fn makeAdaValue(l: Int) -> Value {
   assets.from_lovelace(l * 1000000)
-}
-
-pub fn withPurpose(hash: ByteArray) -> ScriptInfo {
-  let stake = Script(hash)
-  Withdrawing(stake)
 }

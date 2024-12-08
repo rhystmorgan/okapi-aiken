@@ -5,10 +5,6 @@ use cardano/transaction.{
 }
 use tests/tools as t
 
-// ScriptInputs
-// Inputs with Policy
-// Token Script Inputs
-
 pub fn taggedOutput(outputs: List<Output>, oref: OutputReference) -> Output {
   expect Some(out) =
     list.find(outputs, fn(output) { output.datum == InlineDatum(oref) })
@@ -63,16 +59,6 @@ pub fn taggedInOut(
     )
 
   taggedOuts
-}
-
-pub fn filterMap() {
-  let outputs = 
-    list.filter_map(
-      outputs,
-      fn(output) {
-        output.datum == InlineDatum(_) 
-      }
-    )
 }
 
 test taggedInOuts() {

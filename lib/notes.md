@@ -30,8 +30,6 @@ so I will see if any of them fit well into those `categories` and if so i will c
 
 Functions:
 
-elan
-  return 
 
 general
   authTokenOutput() -> (Value, Datum)

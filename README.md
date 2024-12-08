@@ -148,3 +148,55 @@ This along with some property based tests and example validators will hopefully
 make it easy to write common validation checks or access common data points 
 without the need to duplicate massive amounts of code over multiple projects.
 
+---
+
+## Okapi V2
+
+I have made a lot of changes as mentioned above, now Okapi is mainly more complex
+functions that operate as a contained unit and return something small and specific
+OR return a Bool.
+
+Here is an overview of the functions: 
+
+GENERAL:
+
+- authTokenOutput()
+- hasSingleInput()
+- ownSingleOutput()
+- validateScriptOutIx()
+- mapTokenPairOut()
+- mapTokenPairIO()
+
+INOUT:
+
+- listInputOutputs()
+- listScriptIns()
+- listScriptOuts()
+- listScriptIO()
+- checkTokenPairIO()
+
+MINT: 
+
+- mintTokens()
+- mintToken()
+- mint222() 
+- mint444()
+- makeRefFrom() TODO
+- makeUserFrom() TODO
+- makeFracFrom() TODO
+
+SPEND: 
+
+- getOrefInput()
+- getOrefInputOut()
+- getOrefScriptHash()
+- getOrefDatumValue()
+- ownSpendIO() 
+- ownSingletonOutput()
+
+TAG: 
+
+- taggedOutput()
+- taggendOuts()
+- taggendInOut()
+

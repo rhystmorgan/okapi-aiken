@@ -46,35 +46,29 @@ pub fn ownSingleOutput(tx: Transaction, oref: OutputReference) -> Output {
       |> find_script_outputs(script_hash)
 
   expect list.length(script_outputs) == 1
-  expect Some(output) =
-    tx.outputs
-      |> find_script_outputs(script_hash)
-      |> list.head()
-  output
+  list.head(script_outputs)
 }
 
 pub fn validateScriptOutIx(
   script: ScriptHash,
   indices: List<Int>,
-  tx: Transaction,
+  outs: List<Output>,
   validateEach: fn(Output) -> Bool,
 ) -> Bool {
-  let Transaction { inputs, .. } = tx
-
   let txList =
     list.map(
-      redeemer,
+      indices,
       fn(index) {
-        expect Some(input) = list.at(tx.inputs, index)
-        expect input.output.address.payment_credential == script
-        input
+        expect Some(output) = list.at(outputs, index)
+        expect output.address.payment_credential == script
+        output
       },
     )
 
-  list.all(txList, fn(input) { validateEach(input.output) })
+  list.all(txList, fn(output) { validateEach(output) })
 }
 
-pub fn mapTokenOutPair(
+pub fn mapTokenPairOut(
   indices: List<Int>,
   outputs: List<Output>,
   validate: fn(Output, Output) -> Bool,
