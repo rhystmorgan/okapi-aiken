@@ -1,3 +1,9 @@
+use aiken/collection/list
+use aiken/crypto.{ScriptHash}
+use cardano/address.{Script}
+use cardano/assets.{Value}
+use cardano/transaction.{Datum, Input, Output, OutputReference, Transaction}
+
 // general operations and unallocated functions
 
 // returns (authValue, authDatum) or errors
@@ -20,7 +26,7 @@ pub fn authTokenOutput(outs: List<Output>, script: ByteArray) -> (Value, Datum) 
 pub fn hasSingleInput(tx: Transaction, oref: OutputReference) -> Bool {
   expect Some(input) =
     tx.inputs
-      |> find_input(oref)
+      |> transaction.find_input(oref)
 
   expect Script(script_hash) = input.output.address.payment_credential
 
@@ -38,15 +44,17 @@ pub fn hasSingleInput(tx: Transaction, oref: OutputReference) -> Bool {
 pub fn ownSingleOutput(tx: Transaction, oref: OutputReference) -> Output {
   expect Some(input) =
     tx.inputs
-      |> find_input(oref)
+      |> transaction.find_input(oref)
 
   expect Script(script_hash) = input.output.address.payment_credential
   let script_outputs =
     tx.outputs
-      |> find_script_outputs(script_hash)
+      |> transaction.find_script_outputs(script_hash)
 
   expect list.length(script_outputs) == 1
-  list.head(script_outputs)
+  expect Some(out) = list.head(script_outputs)
+
+  out
 }
 
 pub fn validateScriptOutIx(
@@ -59,8 +67,8 @@ pub fn validateScriptOutIx(
     list.map(
       indices,
       fn(index) {
-        expect Some(output) = list.at(outputs, index)
-        expect output.address.payment_credential == script
+        expect Some(output) = list.at(outs, index)
+        expect output.address.payment_credential == Script(script)
         output
       },
     )

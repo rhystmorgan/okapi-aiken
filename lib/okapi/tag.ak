@@ -3,7 +3,7 @@ use cardano/assets
 use cardano/transaction.{
   InlineDatum, Input, NoDatum, Output, OutputReference, Transaction,
 }
-use tests/tools as t
+use units/tx as t
 
 pub fn taggedOutput(outputs: List<Output>, oref: OutputReference) -> Output {
   expect Some(out) =
@@ -33,8 +33,7 @@ test taggedOuts() {
   let out3 =
     t.output(t.walletAddress(#"face"), assets.from_lovelace(1000), NoDatum)
 
-  let outputs =
-    [out1, out2, out3]
+  let outputs = [out1, out2, out3]
 
   taggedOutput(outputs, oref1) == out1
 }
@@ -43,20 +42,7 @@ pub fn taggedInOut(
   inputs: List<Input>,
   outputs: List<Output>,
 ) -> List<(Input, Output)> {
-  let datumOuts = 
-    list.filter(
-      outputs,
-      fn(output) { output.datum == InlineDatum(_) },
-    )
-
-  let taggedIns =
-    list.filter(
-      inputs,
-      fn(input) {
-        let out = taggedOutput(datumOuts, input.output_reference)
-        out.datum == InlineDatum(input.output_reference)
-      },
-    )
+  let outs = list.filter(outs, fn(out) { InlineDatum(data) == out.datum })
 
   taggedOuts
 }
@@ -82,8 +68,7 @@ test taggedInOuts() {
   let out3 =
     t.output(t.walletAddress(#"face"), assets.from_lovelace(1000), NoDatum)
 
-  let outputs =
-    [out1, out2, out3]
+  let outputs = [out1, out2, out3]
 
   let in1 =
     Input {
@@ -115,8 +100,38 @@ test taggedInOuts() {
       ),
     }
 
-  let inputs =
-    [in1, in2, in3]
+  let inputs = [in1, in2, in3]
 
   taggedInOut(inputs, outputs) == [(in1, out1), (in2, out2)]
+}
+
+pub fn checkTaggedList(
+  inputs: List<Input>,
+  outputs: List<Output>,
+  list: List<Int>,
+  validate: fn(Input, Output) -> Bool,
+) -> Bool {
+  let txList =
+    list.map(
+      list,
+      fn(index) {
+        expect Some(payment) = list.at(outputs, index)
+
+        expect InlineDatum(datum) = payment.datum
+        expect oref: OutputReference = datum
+
+        expect Some(input) =
+          list.find(inputs, fn(input) { input.output_reference == oref })
+
+        (input, payment)
+      },
+    )
+
+  list.all(
+    txList,
+    fn(pair) {
+      let (input, output) = pair
+      validate(input, output)
+    },
+  )
 }

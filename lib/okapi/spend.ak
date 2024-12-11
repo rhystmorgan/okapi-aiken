@@ -1,3 +1,9 @@
+use aiken/collection/list
+use aiken/crypto.{ScriptHash}
+use cardano/address.{Script}
+use cardano/assets.{Value}
+use cardano/transaction.{Datum, Input, Output, OutputReference}
+
 // spendingVal Helpers
 
 // get input data from oref
@@ -42,7 +48,7 @@ pub fn getOrefDatumValue(
   expect Some(in) =
     list.find(inputs, fn(input) { input.output_reference == oref })
 
-  (input.datum, input.value)
+  (in.output.datum, in.output.value)
 }
 
 // returns non-staking single validator (input, output)
@@ -51,7 +57,7 @@ pub fn ownSpendIO(
   inputs: List<Input>,
   outputs: List<Output>,
 ) -> (Input, Output) {
-  expect Some(in) = inputs |> find_input(oref)
+  expect Some(in) = inputs |> transaction.find_input(oref)
 
   let cred = in.output.address.payment_credential
 
@@ -88,20 +94,30 @@ pub fn ownSingletonOutput(
 ) -> Output {
   expect Some(input) =
     inputs
-      |> find_input(oref)
+      |> transaction.find_input(oref)
 
   expect Script(script_hash) = input.output.address.payment_credential
 
   let script_outputs =
     outputs
-      |> find_script_outputs(script_hash)
+      |> transaction.find_script_outputs(script_hash)
 
   expect list.length(script_outputs) == 1
 
   expect Some(output) =
     outputs
-      |> find_script_outputs(script_hash)
+      |> transaction.find_script_outputs(script_hash)
       |> list.head()
 
   output
+}
+
+pub fn foldInValuesOut(ins: List<Input>, out: Output) -> (Value, Value) {
+  let inValue =
+    list.foldl(
+      ins,
+      assets.zero,
+      fn(in, acc) { assets.merge(in.output.value, acc) },
+    )
+  (assets.without_lovelace(inValue), assets.without_lovelace(out.value))
 }

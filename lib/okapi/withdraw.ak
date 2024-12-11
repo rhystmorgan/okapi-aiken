@@ -1,3 +1,6 @@
+use aiken/collection/list
+use cardano/transaction.{Output}
+
 // withdrawalVal helpers
 
 pub fn mapOutputIndex(
@@ -7,7 +10,7 @@ pub fn mapOutputIndex(
 ) -> Bool {
   let filtered =
     list.map(
-      indeces,
+      indices,
       fn(index) {
         expect Some(out) = list.at(outputs, index)
         out

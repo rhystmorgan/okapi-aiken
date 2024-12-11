@@ -174,6 +174,7 @@ INOUT:
 - listScriptOuts()
 - listScriptIO()
 - checkTokenPairIO()
+- getPolicyIO()
 
 MINT: 
 

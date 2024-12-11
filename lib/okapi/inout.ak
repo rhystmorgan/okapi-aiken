@@ -1,3 +1,9 @@
+use aiken/collection/list
+use aiken/crypto.{ScriptHash}
+use cardano/address.{Script}
+use cardano/assets.{PolicyId}
+use cardano/transaction.{Input, Output, OutputReference}
+
 // Input Output operations
 
 // turns a list of inputs into their outputs in order
@@ -20,7 +26,7 @@ pub fn listScriptOuts(script: ScriptHash, outs: List<Output>) -> List<Output> {
   let scriptOuts =
     list.filter(
       outs,
-      fn(out) { output.address.payment_credential == Script(script) },
+      fn(out) { out.address.payment_credential == Script(script) },
     )
 
   scriptOuts
@@ -34,13 +40,13 @@ pub fn listScriptIO(
   let inList =
     list.filter(
       inputs,
-      fn(input) { input.output.address.payment_credential == script },
+      fn(input) { input.output.address.payment_credential == Script(script) },
     )
 
   let outList =
     list.filter(
       outputs,
-      fn(output) { output.address.payment_credential == script },
+      fn(output) { output.address.payment_credential == Script(script) },
     )
 
   (inList, outList)
@@ -111,4 +117,35 @@ pub fn checkTokenPairIO(
       validate(aIn, bIn, aOut, bOut)
     },
   )
+}
+
+// matching token IOs by policy
+pub fn getPolicyIO(
+  ins: List<Input>,
+  outs: List<Output>,
+  policy: PolicyId,
+) -> List<(Input, Output)> {
+  let inList =
+    list.filter(
+      ins,
+      fn(in) { list.has(assets.policies(in.output.value), policy) },
+    )
+  let outList =
+    list.filter(outs, fn(out) { list.has(assets.policies(out.value), policy) })
+  let ioList =
+    list.map(
+      inList,
+      fn(in) {
+        let inAssets = in.output.value |> assets.tokens(policy)
+
+        expect Some(out) =
+          list.find(
+            outList,
+            fn(out) { assets.tokens(out.value, policy) == inAssets },
+          )
+        (in, out)
+      },
+    )
+
+  ioList
 }
