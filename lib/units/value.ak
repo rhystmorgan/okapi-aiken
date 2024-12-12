@@ -29,3 +29,7 @@ pub fn makeValueTuple(
 ) -> List<(ByteArray, ByteArray, Int)> {
   list.map3(p, a, i, fn(p, a, i) { (p, a, i) })
 }
+
+pub fn adaValue(i: Int) -> Value {
+  assets.from_lovelace(i)
+}

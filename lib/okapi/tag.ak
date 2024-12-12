@@ -38,72 +38,74 @@ test taggedOuts() {
   taggedOutput(outputs, oref1) == out1
 }
 
-pub fn taggedInOut(
-  inputs: List<Input>,
-  outputs: List<Output>,
-) -> List<(Input, Output)> {
-  let outs = list.filter(outs, fn(out) { InlineDatum(data) == out.datum })
+// pub fn taggedInOut(
+//   inputs: List<Input>,
+//   outputs: List<Output>,
+// ) -> List<(Input, Output)> {
+//   let outs = list.filter(outputs, fn(out) { InlineDatum(data: OutputReference) == out.datum}
 
-  taggedOuts
-}
+//   let sortedOut = list.sort(outs, output_reference.compare) 
+//   let sortedIns = list.sort(ins, output)
+//   taggedOuts
+// }
 
-test taggedInOuts() {
-  let oref1 = t.oref(#"cafe", 1)
-  let oref2 = t.oref(#"cafe", 2)
+// test taggedInOuts() {
+//   let oref1 = t.oref(#"cafe", 1)
+//   let oref2 = t.oref(#"cafe", 2)
 
-  let out1 =
-    t.output(
-      t.walletAddress(#"face"),
-      assets.from_lovelace(1000),
-      InlineDatum(oref1),
-    )
+//   let out1 =
+//     t.output(
+//       t.walletAddress(#"face"),
+//       assets.from_lovelace(1000),
+//       InlineDatum(oref1),
+//     )
 
-  let out2 =
-    t.output(
-      t.walletAddress(#"face"),
-      assets.from_lovelace(1000),
-      InlineDatum(oref2),
-    )
+//   let out2 =
+//     t.output(
+//       t.walletAddress(#"face"),
+//       assets.from_lovelace(1000),
+//       InlineDatum(oref2),
+//     )
 
-  let out3 =
-    t.output(t.walletAddress(#"face"), assets.from_lovelace(1000), NoDatum)
+//   let out3 =
+//     t.output(t.walletAddress(#"face"), assets.from_lovelace(1000), NoDatum)
 
-  let outputs = [out1, out2, out3]
+//   let outputs = [out1, out2, out3]
 
-  let in1 =
-    Input {
-      output_reference: oref1,
-      output: t.output(
-        t.walletAddress(#"face"),
-        assets.from_lovelace(1000),
-        NoDatum,
-      ),
-    }
+//   let in1 =
+//     Input {
+//       output_reference: oref1,
+//       output: t.output(
+//         t.walletAddress(#"face"),
+//         assets.from_lovelace(1000),
+//         NoDatum,
+//       ),
+//     }
 
-  let in2 =
-    Input {
-      output_reference: oref2,
-      output: t.output(
-        t.walletAddress(#"face"),
-        assets.from_lovelace(1000),
-        NoDatum,
-      ),
-    }
+//   let in2 =
+//     Input {
+//       output_reference: oref2,
+//       output: t.output(
+//         t.walletAddress(#"face"),
+//         assets.from_lovelace(1000),
+//         NoDatum,
+//       ),
+//     }
 
-  let in3 =
-    Input {
-      output_reference: t.oref(#"cafe", 3),
-      output: t.output(
-        t.walletAddress(#"face"),
-        assets.from_lovelace(1000),
-        NoDatum,
-      ),
-    }
+//   let in3 =
+//     Input {
+//       output_reference: t.oref(#"cafe", 3),
+//       output: t.output(
+//         t.walletAddress(#"face"),
+//         assets.from_lovelace(1000),
+//         NoDatum,
+//       ),
+//     }
 
-  let inputs = [in1, in2, in3]
+//   let inputs = [in1, in2, in3]
 
-  taggedInOut(inputs, outputs) == [(in1, out1), (in2, out2)]
-}
+//   taggedInOut(inputs, outputs) == [(in1, out1), (in2, out2)]
+// }
 
 pub fn checkTaggedList(
   inputs: List<Input>,
