@@ -65,3 +65,18 @@ test listScriptIns() {
 
   i.listScriptIns(script, ins) == [in1, in3]
 }
+
+test listScriptOuts() {
+  let script = #"0000"
+
+  let out1 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum)
+  let out2 =
+    t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum)
+  let out3 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
+
+  let outs = [out1, out2, out3]
+
+  i.listScriptOuts(script, outs) == [out1, out3]
+}
