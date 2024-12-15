@@ -80,3 +80,114 @@ test listScriptOuts() {
 
   i.listScriptOuts(script, outs) == [out1, out3]
 }
+
+test listScriptIO() {
+  let script = #"0000"
+
+  let in1 =
+    t.input(
+      t.oref(#"0000", 1),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum),
+    )
+
+  let in2 =
+    t.input(
+      t.oref(#"0000", 2),
+      t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum),
+    )
+
+  let in3 =
+    t.input(
+      t.oref(#"0000", 3),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum),
+    )
+
+  let out1 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum)
+  let out2 =
+    t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum)
+  let out3 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
+
+  let ins = [in1, in2, in3]
+  let outs = [out1, out2, out3]
+
+  i.listScriptIO(script, ins, outs) == ([in1, in3], [out1, out3])
+}
+
+test checkTokenPairIO() {
+  let script = #"0000"
+
+  let in1 =
+    t.input(
+      t.oref(#"0000", 1),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "aa", 1), NoDatum),
+    )
+
+  let in2 =
+    t.input(
+      t.oref(#"0000", 2),
+      t.output(t.scriptAddress(#"1111"), v.tokenValue(#"22", "aa", 1), NoDatum),
+    )
+
+  let in3 =
+    t.input(
+      t.oref(#"0000", 3),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum),
+    )
+
+  let out1 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "aa", 1), NoDatum)
+  let out2 =
+    t.output(t.scriptAddress(#"1111"), v.tokenValue(#"22", "aa", 1), NoDatum)
+  let out3 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
+
+  let ins = [in1, in2, in3]
+  let outs = [out1, out2, out3]
+
+  i.checkTokenPairIO(
+    [0],
+    #"0000",
+    #"1111",
+    ins,
+    outs,
+    fn(ina, inb, outa, outb) {
+      (ina, inb, outa, outb) == (in1, in2, out1, out2)
+    },
+  )
+}
+
+test getPolicyIO() {
+  let policy = #"00"
+
+  let in1 =
+    t.input(
+      t.oref(#"0000", 1),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum),
+    )
+
+  let in2 =
+    t.input(
+      t.oref(#"0000", 2),
+      t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum),
+    )
+
+  let in3 =
+    t.input(
+      t.oref(#"0000", 3),
+      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum),
+    )
+
+  let out1 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum)
+  let out2 =
+    t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum)
+  let out3 =
+    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
+
+  let ins = [in1, in2, in3]
+  let outs = [out1, out2, out3]
+
+  i.getPolicyIO(ins, outs, policy) == [(in2, out2)]
+}
