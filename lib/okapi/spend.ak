@@ -121,3 +121,4 @@ pub fn foldInValuesOut(ins: List<Input>, out: Output) -> (Value, Value) {
     )
   (assets.without_lovelace(inValue), assets.without_lovelace(out.value))
 }
+
