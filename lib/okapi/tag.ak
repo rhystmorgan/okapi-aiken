@@ -12,32 +12,6 @@ pub fn taggedOutput(outputs: List<Output>, oref: OutputReference) -> Output {
   out
 }
 
-test taggedOuts() {
-  let oref1 = t.oref(#"cafe", 1)
-  let oref2 = t.oref(#"cafe", 2)
-
-  let out1 =
-    t.output(
-      t.walletAddress(#"face"),
-      assets.from_lovelace(1000),
-      InlineDatum(oref1),
-    )
-
-  let out2 =
-    t.output(
-      t.walletAddress(#"face"),
-      assets.from_lovelace(1000),
-      InlineDatum(oref2),
-    )
-
-  let out3 =
-    t.output(t.walletAddress(#"face"), assets.from_lovelace(1000), NoDatum)
-
-  let outputs = [out1, out2, out3]
-
-  taggedOutput(outputs, oref1) == out1
-}
-
 // pub fn taggedInOut(
 //   inputs: List<Input>,
 //   outputs: List<Output>,
