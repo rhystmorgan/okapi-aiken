@@ -1,9 +1,7 @@
 use aiken/collection/list
-use cardano/assets
 use cardano/transaction.{
-  InlineDatum, Input, NoDatum, Output, OutputReference, Transaction,
+  InlineDatum, Input, Output, OutputReference, 
 }
-use units/tx as t
 
 pub fn taggedOutput(outputs: List<Output>, oref: OutputReference) -> Output {
   expect Some(out) =

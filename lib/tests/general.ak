@@ -1,5 +1,5 @@
 use cardano/assets
-use cardano/transaction.{Datum, InlineDatum, NoDatum, Transaction, placeholder}
+use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use okapi/general as g
 use tests/utils.{TestDatum}
 use tools/tools as v
@@ -67,7 +67,7 @@ test validateScriptOutIx() {
 
   let outs = [out1, out2, out3, out4]
 
-  g.validateScriptOutIx(script, indices, outs, fn(out) { True }) == True
+  g.validateScriptOutIx(script, indices, outs, fn(_out) { True }) == True
 }
 
 test mapTokenPairOut() {
@@ -82,7 +82,7 @@ test mapTokenPairOut() {
 
   let outs = [out1, out2, out3, out4]
 
-  g.mapTokenPairOut(indices, outs, fn(a, b) { True }) == True
+  g.mapTokenPairOut(indices, outs, fn(_a, _b) { True }) == True
 }
 
 test mapTokenPairIO() {
@@ -130,6 +130,6 @@ test mapTokenPairIO() {
     #"1111",
     ins,
     outs,
-    fn(aIn, bIn, aOut, bOut) { True },
+    fn(_aIn, _bIn, _aOut, _bOut) { True },
   ) == True
 }

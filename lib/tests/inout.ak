@@ -1,5 +1,4 @@
-use cardano/assets
-use cardano/transaction.{Datum, InlineDatum, NoDatum, Transaction, placeholder}
+use cardano/transaction.{NoDatum}
 use okapi/inout as i
 use tools/tools as v
 use units/tx as t
@@ -121,7 +120,7 @@ test checkTokenPairIO() {
   let in1 =
     t.input(
       t.oref(#"0000", 1),
-      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "aa", 1), NoDatum),
+      t.output(t.scriptAddress(script), v.tokenValue(#"22", "aa", 1), NoDatum),
     )
 
   let in2 =
@@ -133,15 +132,15 @@ test checkTokenPairIO() {
   let in3 =
     t.input(
       t.oref(#"0000", 3),
-      t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum),
+      t.output(t.scriptAddress(script), v.tokenValue(#"99", "", 1), NoDatum),
     )
 
   let out1 =
-    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "aa", 1), NoDatum)
+    t.output(t.scriptAddress(script), v.tokenValue(#"22", "aa", 1), NoDatum)
   let out2 =
     t.output(t.scriptAddress(#"1111"), v.tokenValue(#"22", "aa", 1), NoDatum)
   let out3 =
-    t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
+    t.output(t.scriptAddress(script), v.tokenValue(#"99", "", 1), NoDatum)
 
   let ins = [in1, in2, in3]
   let outs = [out1, out2, out3]
@@ -170,7 +169,7 @@ test getPolicyIO() {
   let in2 =
     t.input(
       t.oref(#"0000", 2),
-      t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum),
+      t.output(t.scriptAddress(#"1111"), v.tokenValue(policy, "", 1), NoDatum),
     )
 
   let in3 =
@@ -182,7 +181,7 @@ test getPolicyIO() {
   let out1 =
     t.output(t.scriptAddress(#"0000"), v.tokenValue(#"22", "", 1), NoDatum)
   let out2 =
-    t.output(t.scriptAddress(#"1111"), v.tokenValue(#"00", "", 1), NoDatum)
+    t.output(t.scriptAddress(#"1111"), v.tokenValue(policy, "", 1), NoDatum)
   let out3 =
     t.output(t.scriptAddress(#"0000"), v.tokenValue(#"99", "", 1), NoDatum)
 

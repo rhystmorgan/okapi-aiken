@@ -1,7 +1,6 @@
-use aiken/collection/list
 use cardano/assets
 use cardano/transaction.{
-  InlineDatum, Input, NoDatum, Output, OutputReference, Transaction,
+  InlineDatum, Input, NoDatum, Output, 
 }
 use okapi/tag
 use tools/tools as v

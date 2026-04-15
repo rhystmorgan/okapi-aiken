@@ -2,7 +2,7 @@ use aiken/collection/list
 use aiken/crypto.{ScriptHash}
 use cardano/address.{Script}
 use cardano/assets.{PolicyId}
-use cardano/transaction.{Input, Output, OutputReference}
+use cardano/transaction.{Input, Output}
 
 // Input Output operations
 
@@ -65,7 +65,6 @@ pub fn checkTokenPairIO(
     list.map(
       indices,
       fn(index) {
-        let l = index
         expect Some(a) = list.at(outputs, index)
         expect a.address.payment_credential == Script(aHash)
 
@@ -86,7 +85,7 @@ pub fn checkTokenPairIO(
     list.map(
       outList,
       fn(index) {
-        expect (a, b) = index
+        let (a, b) = index
         expect Some(aIn) =
           list.find(
             inputs,

@@ -1,18 +1,5 @@
-use aiken/collection/dict
 use aiken/collection/list
-use aiken/crypto.{ScriptHash, VerificationKeyHash}
-use aiken/interval.{Interval, IntervalBound, NegativeInfinity, PositiveInfinity}
-use cardano/address.{
-  Address, Credential, Inline, Referenced, Script, VerificationKey,
-}
 use cardano/assets.{AssetName, PolicyId, Value}
-use cardano/script_context.{
-  Minting, ScriptContext, ScriptInfo, Spending, Withdrawing,
-}
-use cardano/transaction.{
-  Datum, InlineDatum, Input, NoDatum, Output, OutputReference, ScriptPurpose,
-  Spend, Transaction, TransactionId,
-}
 
 //            //
 // UTxO Tools //
@@ -41,7 +28,7 @@ pub fn multiAssetTxValue(p: PolicyId, a1: AssetName, a2: AssetName) -> Value {
   assets.merge(tokenValue1, tokenValue2)
 }
 
-pub fn multiPolicyTxValue(vs: List<Value>, i: int) -> Value {
+pub fn multiPolicyTxValue(vs: List<Value>) -> Value {
   list.reduce(vs, assets.zero, assets.merge)
 }
 

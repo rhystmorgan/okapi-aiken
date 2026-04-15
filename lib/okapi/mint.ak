@@ -1,6 +1,5 @@
 use aiken/collection/dict
 use aiken/collection/list
-use aiken/collection/pairs
 use aiken/primitive/bytearray
 use cardano/assets.{AssetName, PolicyId, Value}
 use okapi/prefix.{fracTokenPrefix, refTokenPrefix, userTokenPrefix}

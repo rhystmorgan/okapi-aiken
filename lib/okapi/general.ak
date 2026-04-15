@@ -143,7 +143,7 @@ pub fn mapTokenPairIO(
     list.map(
       outList,
       fn(index) {
-        expect (aOut, bOut) = index
+        let (aOut, bOut) = index
         expect Some(aIn) =
           list.find(
             inputs,
