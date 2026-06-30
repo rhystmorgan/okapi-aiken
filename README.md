@@ -1,5 +1,14 @@
 # Okapi
 
+```
+ ██████╗ ██╗  ██╗ █████╗ ██████╗ ██╗
+██╔═══██╗██║ ██╔╝██╔══██╗██╔══██╗██║
+██║   ██║█████╔╝ ███████║██████╔╝██║
+██║   ██║██╔═██╗ ██╔══██║██╔═══╝ ██║
+╚██████╔╝██║  ██╗██║  ██║██║     ██║
+ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
+```
+
 Okapi is a helper function library written aiken to make drafting cardano smart contracts easier and faster.
 
 add the `lib/okapi-aiken` directory to your aiken project and import it with
