@@ -1,33 +1,32 @@
+use aiken/collection/dict
 use aiken/collection/list
 use aiken/crypto.{ScriptHash}
 use cardano/address.{Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{Input, Output}
+use okapi/fast
 
-// Input Output operations
+//                         // 
+// Input Output operations //
+//                         //
 
-// turns a list of inputs into their outputs in order
 pub fn listInputOutputs(ins: List<Input>) -> List<Output> {
   let inputOutputs = list.map(ins, fn(in) { in.output })
   inputOutputs
 }
 
 pub fn listScriptIns(script: ScriptHash, ins: List<Input>) -> List<Input> {
+  let cred = Script(script)
   let scriptIns =
-    list.filter(
-      ins,
-      fn(in) { in.output.address.payment_credential == Script(script) },
-    )
+    list.filter(ins, fn(in) { in.output.address.payment_credential == cred })
 
   scriptIns
 }
 
 pub fn listScriptOuts(script: ScriptHash, outs: List<Output>) -> List<Output> {
+  let cred = Script(script)
   let scriptOuts =
-    list.filter(
-      outs,
-      fn(out) { out.address.payment_credential == Script(script) },
-    )
+    list.filter(outs, fn(out) { out.address.payment_credential == cred })
 
   scriptOuts
 }
@@ -37,22 +36,22 @@ pub fn listScriptIO(
   inputs: List<Input>,
   outputs: List<Output>,
 ) -> (List<Input>, List<Output>) {
+  let cred = Script(script)
   let inList =
     list.filter(
       inputs,
-      fn(input) { input.output.address.payment_credential == Script(script) },
+      fn(input) { input.output.address.payment_credential == cred },
     )
 
   let outList =
     list.filter(
       outputs,
-      fn(output) { output.address.payment_credential == Script(script) },
+      fn(output) { output.address.payment_credential == cred },
     )
 
   (inList, outList)
 }
 
-// sorts Ins and Outs into pairs by tokenValue and validates them together
 pub fn checkTokenPairIO(
   indices: List<Int>,
   aHash: ScriptHash,
@@ -61,64 +60,50 @@ pub fn checkTokenPairIO(
   outputs: List<Output>,
   validate: fn(Input, Input, Output, Output) -> Bool,
 ) -> Bool {
-  let outList =
-    list.map(
-      indices,
-      fn(index) {
-        expect Some(a) = list.at(outputs, index)
-        expect a.address.payment_credential == Script(aHash)
-
-        expect Some(b) =
-          list.find(
-            outputs,
-            fn(output) {
-              assets.without_lovelace(output.value) == assets.without_lovelace(
-                a.value,
-              ) && output.address.payment_credential == Script(bHash)
-            },
-          )
-        (a, b)
-      },
-    )
-
-  let inList =
-    list.map(
-      outList,
-      fn(index) {
-        let (a, b) = index
-        expect Some(aIn) =
-          list.find(
-            inputs,
-            fn(input) {
-              input.output.address.payment_credential == Script(aHash) && assets.without_lovelace(
-                input.output.value,
-              ) == assets.without_lovelace(a.value)
-            },
-          )
-
-        expect Some(bIn) =
-          list.find(
-            inputs,
-            fn(input) {
-              input.output.address.payment_credential == Script(bHash) && assets.without_lovelace(
-                input.output.value,
-              ) == assets.without_lovelace(b.value)
-            },
-          )
-        (aIn, bIn, a, b)
-      },
-    )
-
+  let aCred = Script(aHash)
+  let bCred = Script(bHash)
   list.all(
-    inList,
-    fn(pair) {
-      let (aIn, bIn, aOut, bOut) = pair
-      validate(aIn, bIn, aOut, bOut)
+    indices,
+    fn(index) {
+      expect Some(a) = list.at(outputs, index)
+      expect a.address.payment_credential == aCred
+
+      let aClean = assets.without_lovelace(a.value)
+      let b =
+        fast.mustFind(
+          outputs,
+          fn(output) {
+            output.address.payment_credential == bCred && assets.without_lovelace(
+              output.value,
+            ) == aClean
+          },
+        )
+      let bClean = assets.without_lovelace(b.value)
+
+      let aIn =
+        fast.mustFind(
+          inputs,
+          fn(input) {
+            input.output.address.payment_credential == aCred && assets.without_lovelace(
+              input.output.value,
+            ) == aClean
+          },
+        )
+
+      let bIn =
+        fast.mustFind(
+          inputs,
+          fn(input) {
+            input.output.address.payment_credential == bCred && assets.without_lovelace(
+              input.output.value,
+            ) == bClean
+          },
+        )
+      validate(aIn, bIn, a, b)
     },
   )
 }
 
-// matching token IOs by policy
 pub fn getPolicyIO(
   ins: List<Input>,
   outs: List<Output>,
@@ -127,18 +112,21 @@ pub fn getPolicyIO(
   let inList =
     list.filter(
       ins,
-      fn(in) { list.has(assets.policies(in.output.value), policy) },
+      fn(in) { dict.has_key(assets.to_dict(in.output.value), policy) },
     )
   let outList =
-    list.filter(outs, fn(out) { list.has(assets.policies(out.value), policy) })
+    list.filter(
+      outs,
+      fn(out) { dict.has_key(assets.to_dict(out.value), policy) },
+    )
   let ioList =
     list.map(
       inList,
       fn(in) {
         let inAssets = in.output.value |> assets.tokens(policy)
 
-        expect Some(out) =
-          list.find(
+        let out =
+          fast.mustFind(
             outList,
             fn(out) { assets.tokens(out.value, policy) == inAssets },
           )

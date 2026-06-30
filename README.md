@@ -52,6 +52,12 @@ OR return a Bool.
 
 Here is an overview of the functions: 
 
+FAST:
+
+- mustFind()
+- mustFindInput()
+- onlyMatch()
+
 GENERAL:
 
 - authTokenOutput()
@@ -59,7 +65,6 @@ GENERAL:
 - ownSingleOutput()
 - validateScriptOutIx()
 - mapTokenPairOut()
-- mapTokenPairIO()
 
 INOUT:
  
@@ -67,7 +72,7 @@ INOUT:
 - listScriptIns()
 - listScriptOuts()
 - listScriptIO()
-- checkTokenPairIO()
+- checkTokenPairIO() 
 - getPolicyIO()
 
 MINT: 
@@ -76,9 +81,9 @@ MINT:
 - mintToken()
 - mint222() 
 - mint444()
-- makeRefFrom() TODO
-- makeUserFrom() TODO
-- makeFracFrom() TODO
+- makeRefFrom() 
+- makeUserFrom() 
+- makeFracFrom() 
 
 SPEND:
 
@@ -95,8 +100,6 @@ TAG:
 
 - taggedOutput()
 - checkTaggedList()
-- taggendOuts() X
-- taggendInOut() X
 
 VALUE:
 

@@ -3,21 +3,18 @@ use aiken/crypto.{ScriptHash}
 use cardano/address.{Script}
 use cardano/assets.{Value}
 use cardano/transaction.{Datum, Input, Output, OutputReference}
+use okapi/fast
 
-// spendingVal Helpers
-
-// get input data from oref
+//                     //
+// spendingVal Helpers //
+//                     //
 
 pub fn getOrefInput(oref: OutputReference, inputs: List<Input>) -> Input {
-  expect Some(in) =
-    list.find(inputs, fn(input) { input.output_reference == oref })
-
-  in
+  fast.mustFindInput(inputs, oref)
 }
 
 pub fn getOrefInputOut(oref: OutputReference, inputs: List<Input>) -> Output {
-  expect Some(in) =
-    list.find(inputs, fn(input) { input.output_reference == oref })
+  let in = fast.mustFindInput(inputs, oref)
 
   in.output
 }
@@ -26,8 +23,7 @@ pub fn getOrefScriptHash(
   oref: OutputReference,
   inputs: List<Input>,
 ) -> ScriptHash {
-  expect Some(in) =
-    list.find(inputs, fn(input) { input.output_reference == oref })
+  let in = fast.mustFindInput(inputs, oref)
 
   expect Script(hash) = in.output.address.payment_credential
 
@@ -35,8 +31,7 @@ pub fn getOrefScriptHash(
 }
 
 pub fn getOrefValue(oref: OutputReference, inputs: List<Input>) -> Value {
-  expect Some(in) =
-    list.find(inputs, fn(input) { input.output_reference == oref })
+  let in = fast.mustFindInput(inputs, oref)
 
   in.output.value
 }
@@ -45,19 +40,17 @@ pub fn getOrefDatumValue(
   oref: OutputReference,
   inputs: List<Input>,
 ) -> (Datum, Value) {
-  expect Some(in) =
-    list.find(inputs, fn(input) { input.output_reference == oref })
+  let in = fast.mustFindInput(inputs, oref)
 
   (in.output.datum, in.output.value)
 }
 
-// returns non-staking single validator (input, output)
 pub fn ownSpendIO(
   oref: OutputReference,
   inputs: List<Input>,
   outputs: List<Output>,
 ) -> (Input, Output) {
-  expect Some(in) = inputs |> transaction.find_input(oref)
+  let in = fast.mustFindInput(inputs, oref)
 
   let cred = in.output.address.payment_credential
 
@@ -77,37 +70,24 @@ pub fn ownSpendIO(
       },
     )
 
-  expect list.length(ownInputs) == 1
-  expect list.length(ownOutputs) == 1
-
-  expect Some(i) = list.head(ownInputs)
-  expect Some(o) = list.head(ownOutputs)
+  expect [i] = ownInputs
+  expect [o] = ownOutputs
 
   (i, o)
 }
 
-// Checks for one `own Validator` output and returns it
 pub fn ownSingletonOutput(
   inputs: List<Input>,
   outputs: List<Output>,
   oref: OutputReference,
 ) -> Output {
-  expect Some(input) =
-    inputs
-      |> transaction.find_input(oref)
+  let input = fast.mustFindInput(inputs, oref)
 
   expect Script(script_hash) = input.output.address.payment_credential
 
-  let script_outputs =
+  expect [output] =
     outputs
       |> transaction.find_script_outputs(script_hash)
-
-  expect list.length(script_outputs) == 1
-
-  expect Some(output) =
-    outputs
-      |> transaction.find_script_outputs(script_hash)
-      |> list.head()
 
   output
 }

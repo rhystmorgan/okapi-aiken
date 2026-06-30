@@ -7,7 +7,6 @@ pub fn twoHashes() -> Fuzzer<(ByteArray, ByteArray)> {
   f.both(a, b)
 }
 
-// tuple of hash between 1-10
 pub fn threeHashes() -> Fuzzer<(ByteArray, ByteArray, ByteArray)> {
   f.map3(
     f.bytearray_fixed(28),
@@ -17,7 +16,6 @@ pub fn threeHashes() -> Fuzzer<(ByteArray, ByteArray, ByteArray)> {
   )
 }
 
-// tuple of hash between 1-10
 pub fn fourHashes() -> Fuzzer<(ByteArray, ByteArray, ByteArray, ByteArray)> {
   f.map4(
     f.bytearray_fixed(28),
@@ -28,7 +26,6 @@ pub fn fourHashes() -> Fuzzer<(ByteArray, ByteArray, ByteArray, ByteArray)> {
   )
 }
 
-// creates list of n x 28' bytearrays
 pub fn hashList(n: Int) -> Fuzzer<List<ByteArray>> {
   f.list_between(f.bytearray_fixed(28), n, n)
 }

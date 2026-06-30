@@ -1,19 +1,23 @@
+use aiken/collection/dict
 use aiken/collection/list
 use aiken/crypto.{ScriptHash}
 use cardano/address.{Script}
 use cardano/assets.{Value}
-use cardano/transaction.{Datum, Input, Output, OutputReference, Transaction}
+use cardano/transaction.{Datum, Output, OutputReference, Transaction}
+use okapi/fast
 
-// general operations and unallocated functions
+//                                              //
+// general operations and unallocated functions //
+//                                              //
 
-// returns (authValue, authDatum) or errors
 pub fn authTokenOutput(outs: List<Output>, script: ByteArray) -> (Value, Datum) {
-  expect Some(tokenOut) =
-    list.find(
+  let cred = Script(script)
+  let tokenOut =
+    fast.mustFind(
       outs,
       fn(output) {
-        output.address.payment_credential == Script(script) && list.has(
-          assets.policies(output.value),
+        output.address.payment_credential == cred && dict.has_key(
+          assets.to_dict(output.value),
           script,
         )
       },
@@ -22,37 +26,25 @@ pub fn authTokenOutput(outs: List<Output>, script: ByteArray) -> (Value, Datum) 
   (assets.without_lovelace(tokenOut.value), tokenOut.datum)
 }
 
-// checks for only one validator input
 pub fn hasSingleInput(tx: Transaction, oref: OutputReference) -> Bool {
-  expect Some(input) =
-    tx.inputs
-      |> transaction.find_input(oref)
+  let input = fast.mustFindInput(tx.inputs, oref)
 
-  expect Script(script_hash) = input.output.address.payment_credential
+  let cred = input.output.address.payment_credential
+  expect Script(_) = cred
 
-  list.length(
-    list.filter(
-      tx.inputs,
-      fn(input) {
-        input.output.address.payment_credential == Script(script_hash)
-      },
-    ),
-  ) == 1
+  fast.onlyMatch(
+    tx.inputs,
+    fn(in) { in.output.address.payment_credential == cred },
+  )
 }
 
-// checks for single validator Output and returns it
 pub fn ownSingleOutput(tx: Transaction, oref: OutputReference) -> Output {
-  expect Some(input) =
-    tx.inputs
-      |> transaction.find_input(oref)
+  let input = fast.mustFindInput(tx.inputs, oref)
 
   expect Script(script_hash) = input.output.address.payment_credential
-  let script_outputs =
+  expect [out] =
     tx.outputs
       |> transaction.find_script_outputs(script_hash)
-
-  expect list.length(script_outputs) == 1
-  expect Some(out) = list.head(script_outputs)
 
   out
 }
@@ -63,17 +55,15 @@ pub fn validateScriptOutIx(
   outs: List<Output>,
   validateEach: fn(Output) -> Bool,
 ) -> Bool {
-  let txList =
-    list.map(
-      indices,
-      fn(index) {
-        expect Some(output) = list.at(outs, index)
-        expect output.address.payment_credential == Script(script)
-        output
-      },
-    )
-
-  list.all(txList, fn(output) { validateEach(output) })
+  let cred = Script(script)
+  list.all(
+    indices,
+    fn(index) {
+      expect Some(output) = list.at(outs, index)
+      expect output.address.payment_credential == cred
+      validateEach(output)
+    },
+  )
 }
 
 pub fn mapTokenPairOut(
@@ -81,97 +71,22 @@ pub fn mapTokenPairOut(
   outputs: List<Output>,
   validate: fn(Output, Output) -> Bool,
 ) -> Bool {
-  let txList =
-    list.map(
-      indices,
-      fn(index) {
-        let l = index
-        expect Some(aOut) = list.at(outputs, l)
-        expect Some(bOut) =
-          list.find(
-            outputs,
-            fn(output) {
-              assets.without_lovelace(output.value) == assets.without_lovelace(
-                aOut.value,
-              ) && output.address.payment_credential != aOut.address.payment_credential
-            },
-          )
-        (aOut, bOut)
-      },
-    )
-
   list.all(
-    txList,
-    fn(pair) {
-      let (aOut, bOut) = pair
+    indices,
+    fn(index) {
+      expect Some(aOut) = list.at(outputs, index)
+      let aClean = assets.without_lovelace(aOut.value)
+      let bOut =
+        fast.mustFind(
+          outputs,
+          fn(output) {
+            output.address.payment_credential != aOut.address.payment_credential && assets.without_lovelace(
+              output.value,
+            ) == aClean
+          },
+        )
       validate(aOut, bOut)
     },
   )
 }
 
-// sorts Ins and Outs into pairs by tokenValue and validates them together
-pub fn mapTokenPairIO(
-  indices: List<Int>,
-  aHash: ScriptHash,
-  bHash: ScriptHash,
-  inputs: List<Input>,
-  outputs: List<Output>,
-  validate: fn(Input, Input, Output, Output) -> Bool,
-) -> Bool {
-  let outList =
-    list.map(
-      indices,
-      fn(index) {
-        let l = index
-        expect Some(aOut) = list.at(outputs, l)
-        expect aOut.address.payment_credential == Script(aHash)
-
-        expect Some(bOut) =
-          list.find(
-            outputs,
-            fn(output) {
-              assets.without_lovelace(output.value) == assets.without_lovelace(
-                aOut.value,
-              ) && output.address.payment_credential == Script(bHash)
-            },
-          )
-        (aOut, bOut)
-      },
-    )
-
-  let inList =
-    list.map(
-      outList,
-      fn(index) {
-        let (aOut, bOut) = index
-        expect Some(aIn) =
-          list.find(
-            inputs,
-            fn(input) {
-              input.output.address.payment_credential == Script(aHash) && assets.without_lovelace(
-                input.output.value,
-              ) == assets.without_lovelace(aOut.value)
-            },
-          )
-
-        expect Some(bIn) =
-          list.find(
-            inputs,
-            fn(input) {
-              input.output.address.payment_credential == Script(bHash) && assets.without_lovelace(
-                input.output.value,
-              ) == assets.without_lovelace(bOut.value)
-            },
-          )
-        (aIn, bIn, aOut, bOut)
-      },
-    )
-
-  list.all(
-    inList,
-    fn(pair) {
-      let (aIn, bIn, aOut, bOut) = pair
-      validate(aIn, bIn, aOut, bOut)
-    },
-  )
-}
